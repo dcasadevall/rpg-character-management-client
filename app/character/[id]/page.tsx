@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { characterService, Character } from '../../api/characterService';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function CharacterDetail() {
     const router = useRouter();
@@ -123,10 +124,13 @@ export default function CharacterDetail() {
                     {/* Character Portrait */}
                     <div className="md:w-1/3">
                         <div className="relative aspect-square">
-                            <img
+                            <Image
                                 src={getImagePath()}
                                 alt={`${character.race} ${character.class} character portrait`}
-                                className="object-cover w-full h-full"
+                                className="object-cover"
+                                fill
+                                sizes="(max-width: 768px) 100vw, 33vw"
+                                priority
                             />
                         </div>
                     </div>

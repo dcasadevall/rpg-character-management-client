@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { characterService, Character } from '../../api/characterService';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function FinalizeCurrency() {
     const router = useRouter();
@@ -158,10 +159,13 @@ export default function FinalizeCurrency() {
                     {/* Character Portrait */}
                     <div className="md:w-1/3">
                         <div className="relative aspect-square">
-                            <img
+                            <Image
                                 src={getImagePath()}
                                 alt={`${character.race} ${character.class} character portrait`}
-                                className="object-cover w-full h-full"
+                                className="object-cover"
+                                fill
+                                sizes="(max-width: 768px) 100vw, 33vw"
+                                priority
                             />
                         </div>
                     </div>
@@ -183,7 +187,7 @@ export default function FinalizeCurrency() {
                                 <div className="flex flex-col items-center py-4">
                                     <div className="animate-bounce text-3xl mb-2">🎲</div>
                                     <p className="text-lg font-medium dark:text-gray-200">Rolling for gold...</p>
-                                    <p className="text-sm text-gray-600 mt-2 dark:text-gray-400">Determining your character's starting wealth</p>
+                                    <p className="text-sm text-gray-600 mt-2 dark:text-gray-400">Determining your character&apos;s starting wealth</p>
                                 </div>
                             ) : gold !== null ? (
                                 <div className="flex items-center justify-center py-4">

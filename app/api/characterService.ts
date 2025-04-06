@@ -25,7 +25,7 @@ export interface Character {
 }
 
 // Helper function to normalize character data
-export function normalizeCharacter(character: any): Character {
+export function normalizeCharacter(character: Character): Character {
     // Return the character as is - we'll adapt our components to use the server structure
     return character;
 }
@@ -91,6 +91,7 @@ export const characterService = {
             return data;
         } catch (error) {
             // If the response is not JSON, return the original character
+            console.log(error);
             return character;
         }
     },

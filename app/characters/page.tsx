@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { characterService, Character } from '../api/characterService';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function ViewCharacters() {
     const [characters, setCharacters] = useState<Character[]>([]);
@@ -16,9 +17,10 @@ export default function ViewCharacters() {
                 const data = await characterService.getCharacters();
                 setCharacters(data);
                 setLoading(false);
-            } catch (error) {
+            } catch (fetchError) {
                 setError('Failed to fetch characters');
                 setLoading(false);
+                console.error('Error fetching characters:', fetchError);
             }
         };
 
@@ -110,7 +112,7 @@ export default function ViewCharacters() {
                     </Link>
                 </div>
                 <div className="text-center py-16">
-                    <p className="text-xl text-gray-600 mb-6">You don't have any characters yet</p>
+                    <p className="text-xl text-gray-600 mb-6">You don&apos;t have any characters yet</p>
                     <Link
                         href="/create"
                         className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-lg"
@@ -141,10 +143,12 @@ export default function ViewCharacters() {
                         className="border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow dark:border-gray-700 dark:bg-gray-800"
                     >
                         <div className="relative aspect-square">
-                            <img
+                            <Image
                                 src={getImagePath(character)}
                                 alt={`${character.race} ${character.class}`}
-                                className="w-full h-full object-cover"
+                                className="object-cover"
+                                fill
+                                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                             />
                         </div>
 

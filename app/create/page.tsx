@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { characterService, getRandomCharacter, raceData, classData, Character } from '../api/characterService';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 // Define a type for the character creation form (without attributes)
 interface CharacterBasicInfo {
@@ -115,10 +116,13 @@ export default function CreateCharacter() {
                 {/* Character Portrait */}
                 <div className="flex flex-col items-center">
                     <div className="relative w-full aspect-square rounded-lg overflow-hidden shadow-lg mb-4">
-                        <img
+                        <Image
                             src={getImagePath()}
                             alt={`${character.race} ${character.class} character portrait`}
-                            className="object-cover w-full h-full"
+                            className="object-cover"
+                            fill
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                            priority
                         />
                     </div>
                     <button
