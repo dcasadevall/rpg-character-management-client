@@ -8,8 +8,32 @@ export async function GET(request: NextRequest, { params }: { params: { path: st
 
     try {
         const response = await fetch(url);
-        const data = await response.json();
-        return NextResponse.json(data);
+
+        if (response.ok) {
+            try {
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    const text = await response.text();
+                    if (text && text.trim()) {
+                        const data = JSON.parse(text);
+                        return NextResponse.json(data);
+                    }
+                }
+
+                // If no content or not JSON, return success
+                return NextResponse.json({ success: true, status: response.status });
+            } catch (parseError) {
+                console.error(`Error parsing JSON response: ${parseError}`);
+                return NextResponse.json({ success: true, status: response.status });
+            }
+        } else {
+            const errorText = await response.text();
+            console.error(`API returned error status ${response.status}: ${errorText}`);
+            return NextResponse.json(
+                { error: `API returned status ${response.status}`, details: errorText },
+                { status: response.status }
+            );
+        }
     } catch (error) {
         console.error(`Error proxying GET request to ${url}:`, error);
         return NextResponse.json({ error: 'Failed to fetch data from API' }, { status: 500 });
@@ -30,9 +54,31 @@ export async function POST(request: NextRequest, { params }: { params: { path: s
             body: JSON.stringify(body),
         });
 
-        const data = await response.json();
-        console.log(data);
-        return NextResponse.json(data);
+        if (response.ok) {
+            try {
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    const text = await response.text();
+                    if (text && text.trim()) {
+                        const data = JSON.parse(text);
+                        return NextResponse.json(data);
+                    }
+                }
+
+                // If no content or not JSON, return success
+                return NextResponse.json({ success: true, status: response.status });
+            } catch (parseError) {
+                console.error(`Error parsing JSON response: ${parseError}`);
+                return NextResponse.json({ success: true, status: response.status });
+            }
+        } else {
+            const errorText = await response.text();
+            console.error(`API returned error status ${response.status}: ${errorText}`);
+            return NextResponse.json(
+                { error: `API returned status ${response.status}`, details: errorText },
+                { status: response.status }
+            );
+        }
     } catch (error) {
         console.error(`Error proxying POST request to ${url}:`, error);
         return NextResponse.json({ error: 'Failed to send data to API' }, { status: 500 });
@@ -53,8 +99,36 @@ export async function PUT(request: NextRequest, { params }: { params: { path: st
             body: JSON.stringify(body),
         });
 
-        const data = await response.json();
-        return NextResponse.json(data);
+        // Check if the response is successful regardless of content
+        if (response.ok) {
+            try {
+                // Try to parse JSON if available
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    const text = await response.text();
+                    // Only try to parse if there's actual content
+                    if (text && text.trim()) {
+                        const data = JSON.parse(text);
+                        return NextResponse.json(data);
+                    }
+                }
+
+                // If no content or not JSON, return a success message
+                return NextResponse.json({ success: true, status: response.status });
+            } catch (parseError) {
+                console.error(`Error parsing JSON response: ${parseError}`);
+                // Still return success if the request was successful
+                return NextResponse.json({ success: true, status: response.status });
+            }
+        } else {
+            // Handle error response
+            const errorText = await response.text();
+            console.error(`API returned error status ${response.status}: ${errorText}`);
+            return NextResponse.json(
+                { error: `API returned status ${response.status}`, details: errorText },
+                { status: response.status }
+            );
+        }
     } catch (error) {
         console.error(`Error proxying PUT request to ${url}:`, error);
         return NextResponse.json({ error: 'Failed to update data in API' }, { status: 500 });
@@ -70,12 +144,36 @@ export async function DELETE(request: NextRequest, { params }: { params: { path:
             method: 'DELETE',
         });
 
-        if (response.status === 204) {
-            return new NextResponse(null, { status: 204 });
-        }
+        if (response.ok) {
+            // For 204 No Content or similar responses, just return success
+            if (response.status === 204 || !response.headers.get('content-type')) {
+                return NextResponse.json({ success: true, status: response.status });
+            }
 
-        const data = await response.json();
-        return NextResponse.json(data);
+            // Try to parse JSON if it exists
+            try {
+                if (response.headers.get('content-type')?.includes('application/json')) {
+                    const text = await response.text();
+                    if (text && text.trim()) {
+                        const data = JSON.parse(text);
+                        return NextResponse.json(data);
+                    }
+                }
+
+                // Default success response
+                return NextResponse.json({ success: true, status: response.status });
+            } catch (parseError) {
+                console.error(`Error parsing JSON response: ${parseError}`);
+                return NextResponse.json({ success: true, status: response.status });
+            }
+        } else {
+            const errorText = await response.text();
+            console.error(`API returned error status ${response.status}: ${errorText}`);
+            return NextResponse.json(
+                { error: `API returned status ${response.status}`, details: errorText },
+                { status: response.status }
+            );
+        }
     } catch (error) {
         console.error(`Error proxying DELETE request to ${url}:`, error);
         return NextResponse.json({ error: 'Failed to delete data from API' }, { status: 500 });

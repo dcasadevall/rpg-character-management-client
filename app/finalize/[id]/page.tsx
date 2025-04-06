@@ -64,12 +64,36 @@ export default function FinalizeCurrency() {
             // Update character with gold
             const updatedCharacter = {
                 ...characterData,
-                gold: currencyData.gold
+                gold: currencyData.gold,
+                // Ensure subrace is a string
+                subrace: characterData.subrace || ''
             };
 
-            await characterService.updateCharacter(updatedCharacter);
-            setGold(currencyData.gold);
-            setCharacter(updatedCharacter);
+            try {
+                const updateResponse = await characterService.updateCharacter(updatedCharacter);
+
+                // Handle different possible response formats
+                if (typeof updateResponse === 'object') {
+                    if (updateResponse.id) {
+                        // If we got back a character object
+                        setCharacter(updateResponse);
+                        setGold(updateResponse.gold || currencyData.gold);
+                    } else {
+                        // If we got back a success response
+                        setGold(currencyData.gold);
+                        setCharacter(updatedCharacter);
+                    }
+                } else {
+                    // Fallback
+                    setGold(currencyData.gold);
+                    setCharacter(updatedCharacter);
+                }
+            } catch (updateError) {
+                console.error('Character updated with gold but failed to refresh data:', updateError);
+                // Still update the UI even if the refresh fails
+                setGold(currencyData.gold);
+                setCharacter(updatedCharacter);
+            }
         } catch (err) {
             console.error('Failed to roll for gold:', err);
             setError('Failed to determine starting gold. Please try again.');
