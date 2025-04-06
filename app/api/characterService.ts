@@ -5,13 +5,42 @@ export interface Character {
     race: string;
     subrace: string | null;
     class: string;
-    strength: number;
-    dexterity: number;
-    constitution: number;
-    intelligence: number;
-    wisdom: number;
-    charisma: number;
-    gold?: number;
+    // Stats are nested in a stats object
+    stats?: {
+        strength: number;
+        dexterity: number;
+        constitution: number;
+        intelligence: number;
+        wisdom: number;
+        charisma: number;
+    };
+    // Currencies are nested in a currencies object
+    currencies?: {
+        electrum?: number;
+        platinum?: number;
+        gold?: number;
+        silver?: number;
+        bronze?: number;
+        copper?: number;
+    };
+}
+
+// Helper function to normalize character data
+export function normalizeCharacter(character: any): Character {
+    // Handle cases where the API returns attributes in a stats object
+    if (character.stats && !character.strength) {
+        return {
+            ...character,
+            strength: character.stats.strength,
+            dexterity: character.stats.dexterity,
+            constitution: character.stats.constitution,
+            intelligence: character.stats.intelligence,
+            wisdom: character.stats.wisdom,
+            charisma: character.stats.charisma,
+            gold: character.currencies?.gold
+        };
+    }
+    return character;
 }
 
 // Use our proxy API routes to avoid CORS issues
@@ -25,7 +54,9 @@ export const characterService = {
         if (!response.ok) {
             throw new Error('Failed to fetch characters');
         }
-        return response.json();
+        const data = await response.json();
+        // Normalize the data to ensure consistent structure
+        return Array.isArray(data) ? data.map(normalizeCharacter) : [];
     },
 
     // Get a character by ID
@@ -34,37 +65,90 @@ export const characterService = {
         if (!response.ok) {
             throw new Error('Failed to fetch character');
         }
-        return response.json();
+        const data = await response.json();
+        return normalizeCharacter(data);
     },
 
     // Create a new character
     async createCharacter(character: Character): Promise<Character> {
+        // Transform the character to the expected API format
+        const apiCharacter = {
+            name: character.name,
+            race: character.race,
+            subrace: character.subrace || '',
+            class: character.class,
+            stats: {
+                strength: character.strength,
+                dexterity: character.dexterity,
+                constitution: character.constitution,
+                intelligence: character.intelligence,
+                wisdom: character.wisdom,
+                charisma: character.charisma
+            }
+        };
+
         const response = await fetch(`${API_URL}/characters`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(character),
+            body: JSON.stringify(apiCharacter),
         });
         if (!response.ok) {
             throw new Error('Failed to create character');
         }
-        return response.json();
+        const data = await response.json();
+        return normalizeCharacter(data);
     },
 
     // Update a character
     async updateCharacter(character: Character): Promise<Character> {
+        // Transform the character to the expected API format
+        const apiCharacter: any = {
+            id: character.id,
+            name: character.name,
+            race: character.race,
+            subrace: character.subrace || '',
+            class: character.class
+        };
+
+        // Add stats if present
+        if (character.strength || character.stats) {
+            apiCharacter.stats = {
+                strength: character.stats?.strength || character.strength,
+                dexterity: character.stats?.dexterity || character.dexterity,
+                constitution: character.stats?.constitution || character.constitution,
+                intelligence: character.stats?.intelligence || character.intelligence,
+                wisdom: character.stats?.wisdom || character.wisdom,
+                charisma: character.stats?.charisma || character.charisma
+            };
+        }
+
+        // Add currencies if present
+        if (character.gold || character.currencies) {
+            apiCharacter.currencies = {
+                gold: character.currencies?.gold || character.gold || 0
+            };
+        }
+
         const response = await fetch(`${API_URL}/characters/${character.id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(character),
+            body: JSON.stringify(apiCharacter),
         });
         if (!response.ok) {
             throw new Error('Failed to update character');
         }
-        return response.json();
+
+        try {
+            const data = await response.json();
+            return normalizeCharacter(data);
+        } catch (error) {
+            // If the response is not JSON, return the original character
+            return character;
+        }
     },
 
     // Delete a character

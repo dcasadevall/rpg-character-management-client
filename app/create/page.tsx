@@ -68,15 +68,17 @@ export default function CreateCharacter() {
             // Generate random attributes for the character
             const rollAttribute = () => Math.floor(Math.random() * 13) + 6; // 6-18 range
 
-            // Complete character data with attributes
-            const completeCharacter: Omit<Character, 'id' | 'gold'> = {
+            // Complete character data with attributes in the stats object
+            const completeCharacter: Character = {
                 ...character,
-                strength: rollAttribute(),
-                dexterity: rollAttribute(),
-                constitution: rollAttribute(),
-                intelligence: rollAttribute(),
-                wisdom: rollAttribute(),
-                charisma: rollAttribute()
+                stats: {
+                    strength: rollAttribute(),
+                    dexterity: rollAttribute(),
+                    constitution: rollAttribute(),
+                    intelligence: rollAttribute(),
+                    wisdom: rollAttribute(),
+                    charisma: rollAttribute()
+                }
             };
 
             // Create the character
@@ -97,8 +99,8 @@ export default function CreateCharacter() {
     };
 
     return (
-        <div className="max-w-6xl mx-auto">
-            <h1 className="text-3xl font-bold mb-6">Create Your Character</h1>
+        <div className="max-w-6xl mx-auto py-8 dark:bg-gray-900">
+            <h1 className="text-3xl font-bold mb-6 dark:text-white">Create Your Character</h1>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Character Portrait */}
@@ -112,7 +114,7 @@ export default function CreateCharacter() {
                     </div>
                     <button
                         onClick={rollNewCharacter}
-                        className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors"
+                        className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors dark:bg-indigo-700 dark:hover:bg-indigo-800"
                         type="button"
                     >
                         Roll Random Character
@@ -124,30 +126,30 @@ export default function CreateCharacter() {
                     {/* Basic Info */}
                     <div className="space-y-4">
                         <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
+                            <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
                             <input
                                 type="text"
                                 id="name"
                                 name="name"
                                 value={character.name}
                                 onChange={handleChange}
-                                className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-indigo-600 dark:focus:border-indigo-600"
                                 required
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="race" className="block text-sm font-medium text-gray-700">Race</label>
+                            <label htmlFor="race" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Race</label>
                             <select
                                 id="race"
                                 name="race"
                                 value={character.race}
                                 onChange={handleChange}
-                                className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-indigo-600 dark:focus:border-indigo-600"
                                 required
                             >
                                 {Object.keys(raceData).map(race => (
-                                    <option key={race} value={race}>{race}</option>
+                                    <option key={race} value={race} className="dark:bg-gray-700">{race}</option>
                                 ))}
                             </select>
                         </div>
@@ -155,33 +157,33 @@ export default function CreateCharacter() {
                         {/* Show subrace dropdown only if the race has subraces */}
                         {raceData[character.race as keyof typeof raceData]?.some(subrace => subrace !== null) && (
                             <div>
-                                <label htmlFor="subrace" className="block text-sm font-medium text-gray-700">Subrace</label>
+                                <label htmlFor="subrace" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Subrace</label>
                                 <select
                                     id="subrace"
                                     name="subrace"
                                     value={character.subrace || ''}
                                     onChange={handleChange}
-                                    className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                    className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-indigo-600 dark:focus:border-indigo-600"
                                 >
                                     {raceData[character.race as keyof typeof raceData].map(subrace => (
-                                        <option key={subrace || 'none'} value={subrace || ''}>{subrace || 'None'}</option>
+                                        <option key={subrace || 'none'} value={subrace || ''} className="dark:bg-gray-700">{subrace || 'None'}</option>
                                     ))}
                                 </select>
                             </div>
                         )}
 
                         <div>
-                            <label htmlFor="class" className="block text-sm font-medium text-gray-700">Class</label>
+                            <label htmlFor="class" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Class</label>
                             <select
                                 id="class"
                                 name="class"
                                 value={character.class}
                                 onChange={handleChange}
-                                className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-indigo-600 dark:focus:border-indigo-600"
                                 required
                             >
                                 {classData.map(characterClass => (
-                                    <option key={characterClass} value={characterClass}>{characterClass}</option>
+                                    <option key={characterClass} value={characterClass} className="dark:bg-gray-700">{characterClass}</option>
                                 ))}
                             </select>
                         </div>
@@ -192,7 +194,7 @@ export default function CreateCharacter() {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400 transition-colors"
+                            className="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400 transition-colors dark:bg-green-700 dark:hover:bg-green-800 dark:disabled:bg-gray-600"
                         >
                             {isLoading ? 'Creating Character...' : 'Create Character'}
                         </button>

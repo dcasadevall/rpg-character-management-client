@@ -1,5 +1,7 @@
-import type { Metadata } from "next";
+'use client';
+
 import { Inter, Roboto_Mono } from "next/font/google";
+import { useEffect } from "react";
 import "./globals.css";
 import Link from "next/link";
 
@@ -13,22 +15,43 @@ const robotoMono = Roboto_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "RPG Character Manager",
-  description: "Create and manage your RPG characters",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Set dark mode based on system preference
+  useEffect(() => {
+    // Check if user prefers dark mode
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    // Apply dark mode class if system prefers dark
+    if (prefersDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+
+    // Listen for changes in system preference
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      if (e.matches) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${robotoMono.variable} antialiased`}
+        className={`${inter.variable} ${robotoMono.variable} antialiased dark:bg-gray-900`}
       >
-        <header className="bg-slate-800 text-white shadow-md">
+        <header className="bg-slate-800 text-white shadow-md dark:bg-gray-950 dark:border-b dark:border-gray-800">
           <nav className="container mx-auto flex items-center justify-between p-4">
             <Link href="/" className="text-2xl font-bold">RPG Character Manager</Link>
             <div className="space-x-6">
