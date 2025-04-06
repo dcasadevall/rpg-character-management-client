@@ -1,4 +1,6 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## RPG Character Managemenet Client
+
+Web client for the character service in https://github.com/dcasadevall/rpg-server.
 
 ## Getting Started
 
