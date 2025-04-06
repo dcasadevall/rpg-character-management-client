@@ -60,12 +60,27 @@ export default function ViewCharacters() {
         return 0;
     };
 
-    // Helper function to get a character's gold value
-    const getGoldValue = (character: Character): number | undefined => {
-        if (character.currencies && 'gold' in character.currencies) {
-            return character.currencies.gold;
+    // Helper function to get a character's currency value
+    const getCurrencyValue = (character: Character, currencyType: string): number => {
+        if (!character) return 0;
+
+        // Check if we have currencies object with the currency property
+        if (character.currencies && typeof character.currencies === 'object') {
+            // Check with lowercase currencyType as a key (e.g., 'gold')
+            const lowerCaseKey = currencyType.toLowerCase();
+            if (lowerCaseKey in character.currencies && typeof character.currencies[lowerCaseKey] === 'number') {
+                return character.currencies[lowerCaseKey];
+            }
+
+            // Check with capitalized currencyType as a key (e.g., 'Gold')
+            const capitalizedKey = currencyType.charAt(0).toUpperCase() + currencyType.slice(1).toLowerCase();
+            if (capitalizedKey in character.currencies && typeof character.currencies[capitalizedKey] === 'number') {
+                return character.currencies[capitalizedKey];
+            }
         }
-        return undefined;
+
+        // If no currency found, return 0
+        return 0;
     };
 
     // Loading state
@@ -189,11 +204,32 @@ export default function ViewCharacters() {
                                 </div>
                             </div>
 
-                            {/* Gold display */}
-                            {(getGoldValue(character) !== undefined) && (
-                                <div className="mt-3 flex items-center">
-                                    <span className="text-yellow-600 font-bold mr-1 dark:text-yellow-500">⦿</span>
-                                    <span className="text-sm dark:text-gray-300">{getGoldValue(character)} gold pieces</span>
+                            {/* Currency display */}
+                            {(getCurrencyValue(character, 'gold') > 0 || getCurrencyValue(character, 'silver') > 0 || getCurrencyValue(character, 'copper') > 0) && (
+                                <div className="mt-3 p-3 bg-gray-50 rounded-md border border-gray-200 dark:bg-gray-700 dark:border-gray-600">
+                                    <p className="text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Currency:</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {getCurrencyValue(character, 'gold') > 0 && (
+                                            <div className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs flex items-center dark:bg-yellow-900 dark:text-yellow-200">
+                                                <span className="text-yellow-600 font-bold mr-1 dark:text-yellow-400">⦿</span>
+                                                {getCurrencyValue(character, 'gold')} gold
+                                            </div>
+                                        )}
+
+                                        {getCurrencyValue(character, 'silver') > 0 && (
+                                            <div className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs flex items-center dark:bg-gray-700 dark:text-gray-200">
+                                                <span className="text-gray-500 font-bold mr-1 dark:text-gray-400">⦿</span>
+                                                {getCurrencyValue(character, 'silver')} silver
+                                            </div>
+                                        )}
+
+                                        {getCurrencyValue(character, 'copper') > 0 && (
+                                            <div className="bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-xs flex items-center dark:bg-amber-900 dark:text-amber-200">
+                                                <span className="text-amber-600 font-bold mr-1 dark:text-amber-400">⦿</span>
+                                                {getCurrencyValue(character, 'copper')} copper
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             )}
 

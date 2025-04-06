@@ -54,10 +54,48 @@ export default function CharacterDetail() {
         return character.stats[statName as keyof typeof character.stats] || 0;
     };
 
+    // Helper function to get a character's currency value
+    const getCurrencyValue = (currencyType: string): number => {
+        if (!character) return 0;
+
+        // Check if we have currencies object with the currency property
+        if (character.currencies && typeof character.currencies === 'object') {
+            // Check with lowercase currencyType as a key (e.g., 'gold')
+            const lowerCaseKey = currencyType.toLowerCase();
+            if (lowerCaseKey in character.currencies && typeof character.currencies[lowerCaseKey] === 'number') {
+                return character.currencies[lowerCaseKey];
+            }
+
+            // Check with capitalized currencyType as a key (e.g., 'Gold')
+            const capitalizedKey = currencyType.charAt(0).toUpperCase() + currencyType.slice(1).toLowerCase();
+            if (capitalizedKey in character.currencies && typeof character.currencies[capitalizedKey] === 'number') {
+                return character.currencies[capitalizedKey];
+            }
+        }
+
+        // If no currency found, return 0
+        return 0;
+    };
+
     // Helper function to get a character's gold value
     const getGoldValue = (): number => {
-        if (!character || !character.currencies) return 0;
-        return character.currencies.gold || 0;
+        if (!character) return 0;
+
+        // Check if we have currencies object with gold property
+        if (character.currencies && typeof character.currencies === 'object') {
+            // Check with 'gold' as a key
+            if ('gold' in character.currencies && typeof character.currencies.gold === 'number') {
+                return character.currencies.gold;
+            }
+
+            // Check with 'Gold' as a key (capitalized)
+            if ('Gold' in character.currencies && typeof character.currencies.Gold === 'number') {
+                return character.currencies.Gold;
+            }
+        }
+
+        // If no gold found, return 0
+        return 0;
     };
 
     // Handle character deletion
@@ -181,11 +219,26 @@ export default function CharacterDetail() {
                         {/* Equipment Section */}
                         <div className="mb-6">
                             <h3 className="text-lg font-medium mb-3 border-b pb-2 dark:border-gray-700 dark:text-gray-200">Equipment</h3>
-                            <div className="flex items-center">
-                                <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full flex items-center dark:bg-yellow-900 dark:text-yellow-200">
-                                    <span className="text-yellow-600 font-bold mr-1 dark:text-yellow-400">⦿</span> {getGoldValue()} gold pieces
+
+                            {/* Currencies */}
+                            <div className="mb-4">
+                                <h4 className="text-md font-medium mb-2 dark:text-gray-300">Currency</h4>
+                                <div className="flex flex-wrap gap-2">
+                                    <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full flex items-center dark:bg-yellow-900 dark:text-yellow-200">
+                                        <span className="text-yellow-600 font-bold mr-1 dark:text-yellow-400">⦿</span> {getCurrencyValue('gold')} gold
+                                    </div>
+
+                                    <div className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full flex items-center dark:bg-gray-700 dark:text-gray-200">
+                                        <span className="text-gray-500 font-bold mr-1 dark:text-gray-400">⦿</span> {getCurrencyValue('silver')} silver
+                                    </div>
+
+                                    <div className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full flex items-center dark:bg-amber-900 dark:text-amber-200">
+                                        <span className="text-amber-600 font-bold mr-1 dark:text-amber-400">⦿</span> {getCurrencyValue('copper')} copper
+                                    </div>
                                 </div>
                             </div>
+
+                            {/* Other equipment would go here */}
                         </div>
                     </div>
                 </div>

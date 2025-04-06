@@ -107,14 +107,21 @@ export const characterService = {
     },
 
     // Initialize currency for a character
-    async initializeCurrency(characterClass: string): Promise<{ gold: number }> {
-        const response = await fetch(`${API_URL}/currency/init/${characterClass}`, {
-            method: 'GET',
+    async initializeCurrency(characterId: string): Promise<{ gold: number }> {
+        console.log(`Initializing currency for character ID: ${characterId}...`);
+        const response = await fetch(`${API_URL}/characters/${characterId}/currency/init`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
         });
+
         if (!response.ok) {
-            throw new Error('Failed to initialize currency');
+            throw new Error(`Failed to initialize currency: ${response.status} ${response.statusText}`);
         }
-        return response.json();
+
+        const data = await response.json();
+        return data;
     }
 };
 

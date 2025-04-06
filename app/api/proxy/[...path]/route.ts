@@ -45,14 +45,42 @@ export async function POST(request: NextRequest, { params }: { params: { path: s
     const url = `${API_BASE_URL}/${path}`;
 
     try {
-        const body = await request.json();
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(body),
-        });
+        // Special case for currency initialization - may not need a request body
+        const isCurrencyInit = path.includes('currency/init');
+
+        let requestBody = {};
+        let response;
+
+        if (isCurrencyInit) {
+            console.log('Special handling for currency init endpoint:', url);
+            // For currency init, we don't need to send a body
+            response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+        } else {
+            // Normal POST request with body
+            try {
+                requestBody = await request.json();
+            } catch (error) {
+                console.log('No JSON body provided or invalid JSON');
+            }
+
+            console.log('Sending POST request to:', url);
+            console.log('Request body:', requestBody);
+
+            response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            });
+        }
+
+        console.log('Response status:', response.status);
 
         if (response.ok) {
             try {
@@ -65,11 +93,20 @@ export async function POST(request: NextRequest, { params }: { params: { path: s
                     }
                 }
 
-                // If no content or not JSON, return success
-                return NextResponse.json({ success: true, status: response.status });
+                // If no content or not JSON, return success with gold default for currency init
+                if (isCurrencyInit) {
+                    return NextResponse.json({ gold: 10, success: true, status: response.status });
+                } else {
+                    return NextResponse.json({ success: true, status: response.status });
+                }
             } catch (parseError) {
                 console.error(`Error parsing JSON response: ${parseError}`);
-                return NextResponse.json({ success: true, status: response.status });
+                // For currency init, return a default gold value
+                if (isCurrencyInit) {
+                    return NextResponse.json({ gold: 10, success: true, status: response.status });
+                } else {
+                    return NextResponse.json({ success: true, status: response.status });
+                }
             }
         } else {
             const errorText = await response.text();

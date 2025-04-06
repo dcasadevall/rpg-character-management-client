@@ -60,7 +60,7 @@ export default function CreateCharacter() {
         }
     };
 
-    // Handle form submission - create character and redirect to currency roll
+    // Handle form submission - create character, initialize currency, then redirect
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
@@ -95,8 +95,18 @@ export default function CreateCharacter() {
             const createdCharacter = await characterService.createCharacter(completeCharacter);
 
             if (createdCharacter.id) {
-                // Redirect to finalize page for currency rolling
-                router.push(`/finalize/${createdCharacter.id}`);
+                // Initialize currency for the character before redirecting
+                console.log(`Initializing currency for new character: ${createdCharacter.id}`);
+                try {
+                    await characterService.initializeCurrency(createdCharacter.id);
+                    console.log('Currency initialized successfully');
+                } catch (currencyError) {
+                    console.error('Failed to initialize currency:', currencyError);
+                    // Continue with redirection even if currency initialization fails
+                }
+
+                // Redirect to character view page
+                router.push(`/character/${createdCharacter.id}`);
             } else {
                 throw new Error('Character created but no ID returned');
             }
