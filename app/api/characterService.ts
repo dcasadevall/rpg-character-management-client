@@ -5,41 +5,28 @@ export interface Character {
     race: string;
     subrace: string | null;
     class: string;
-    // Stats are nested in a stats object
+    hitPoints?: number;
+    maxHitPoints?: number;
     stats?: {
-        strength: number;
-        dexterity: number;
-        constitution: number;
-        intelligence: number;
-        wisdom: number;
-        charisma: number;
+        Strength: number;
+        Dexterity: number;
+        Constitution: number;
+        Intelligence: number;
+        Wisdom: number;
+        Charisma: number;
     };
-    // Currencies are nested in a currencies object
-    currencies?: {
-        electrum?: number;
-        platinum?: number;
-        gold?: number;
-        silver?: number;
-        bronze?: number;
-        copper?: number;
+    equipment?: {
+        mainHand: number;
+        offHand: number;
+        shield: number;
+        armor: number;
     };
+    currencies?: Record<string, number>;
 }
 
 // Helper function to normalize character data
 export function normalizeCharacter(character: any): Character {
-    // Handle cases where the API returns attributes in a stats object
-    if (character.stats && !character.strength) {
-        return {
-            ...character,
-            strength: character.stats.strength,
-            dexterity: character.stats.dexterity,
-            constitution: character.stats.constitution,
-            intelligence: character.stats.intelligence,
-            wisdom: character.stats.wisdom,
-            charisma: character.stats.charisma,
-            gold: character.currencies?.gold
-        };
-    }
+    // Return the character as is - we'll adapt our components to use the server structure
     return character;
 }
 
@@ -55,8 +42,7 @@ export const characterService = {
             throw new Error('Failed to fetch characters');
         }
         const data = await response.json();
-        // Normalize the data to ensure consistent structure
-        return Array.isArray(data) ? data.map(normalizeCharacter) : [];
+        return Array.isArray(data) ? data : [];
     },
 
     // Get a character by ID
@@ -66,77 +52,35 @@ export const characterService = {
             throw new Error('Failed to fetch character');
         }
         const data = await response.json();
-        return normalizeCharacter(data);
+        return data;
     },
 
     // Create a new character
     async createCharacter(character: Character): Promise<Character> {
-        // Transform the character to the expected API format
-        const apiCharacter = {
-            name: character.name,
-            race: character.race,
-            subrace: character.subrace || '',
-            class: character.class,
-            stats: {
-                strength: character.strength,
-                dexterity: character.dexterity,
-                constitution: character.constitution,
-                intelligence: character.intelligence,
-                wisdom: character.wisdom,
-                charisma: character.charisma
-            }
-        };
-
+        // Use the character format directly
         const response = await fetch(`${API_URL}/characters`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(apiCharacter),
+            body: JSON.stringify(character),
         });
         if (!response.ok) {
             throw new Error('Failed to create character');
         }
         const data = await response.json();
-        return normalizeCharacter(data);
+        return data;
     },
 
     // Update a character
     async updateCharacter(character: Character): Promise<Character> {
-        // Transform the character to the expected API format
-        const apiCharacter: any = {
-            id: character.id,
-            name: character.name,
-            race: character.race,
-            subrace: character.subrace || '',
-            class: character.class
-        };
-
-        // Add stats if present
-        if (character.strength || character.stats) {
-            apiCharacter.stats = {
-                strength: character.stats?.strength || character.strength,
-                dexterity: character.stats?.dexterity || character.dexterity,
-                constitution: character.stats?.constitution || character.constitution,
-                intelligence: character.stats?.intelligence || character.intelligence,
-                wisdom: character.stats?.wisdom || character.wisdom,
-                charisma: character.stats?.charisma || character.charisma
-            };
-        }
-
-        // Add currencies if present
-        if (character.gold || character.currencies) {
-            apiCharacter.currencies = {
-                gold: character.currencies?.gold || character.gold || 0
-            };
-        }
-
+        // Use the character format directly
         const response = await fetch(`${API_URL}/characters/${character.id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(apiCharacter),
+            body: JSON.stringify(character),
         });
         if (!response.ok) {
             throw new Error('Failed to update character');
@@ -144,7 +88,7 @@ export const characterService = {
 
         try {
             const data = await response.json();
-            return normalizeCharacter(data);
+            return data;
         } catch (error) {
             // If the response is not JSON, return the original character
             return character;
@@ -216,11 +160,22 @@ export function getRandomCharacter(): Omit<Character, 'id'> {
         race: randomRace,
         subrace: randomSubrace,
         class: randomClass,
-        strength: rollAttribute(),
-        dexterity: rollAttribute(),
-        constitution: rollAttribute(),
-        intelligence: rollAttribute(),
-        wisdom: rollAttribute(),
-        charisma: rollAttribute()
+        hitPoints: 10,
+        maxHitPoints: 10,
+        stats: {
+            Strength: rollAttribute(),
+            Dexterity: rollAttribute(),
+            Constitution: rollAttribute(),
+            Intelligence: rollAttribute(),
+            Wisdom: rollAttribute(),
+            Charisma: rollAttribute()
+        },
+        equipment: {
+            mainHand: 0,
+            offHand: 0,
+            shield: 0,
+            armor: 0
+        },
+        currencies: {}
     };
 } 

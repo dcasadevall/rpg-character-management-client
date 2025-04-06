@@ -1,50 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { characterService, Character, normalizeCharacter } from '../api/characterService';
+import { characterService, Character } from '../api/characterService';
 import Link from 'next/link';
 
-// Extended interface to accommodate both direct properties and nested properties
-interface ExtendedCharacter extends Character {
-    strength?: number;
-    dexterity?: number;
-    constitution?: number;
-    intelligence?: number;
-    wisdom?: number;
-    charisma?: number;
-    gold?: number;
-}
-
 export default function ViewCharacters() {
-    const [characters, setCharacters] = useState<ExtendedCharacter[]>([]);
+    const [characters, setCharacters] = useState<Character[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
-    // Get image path for character portrait
-    const getImagePath = (character: ExtendedCharacter) => {
-        const race = character.race.toLowerCase();
-        const characterClass = character.class.toLowerCase();
-
-        return character.subrace
-            ? `/character-creation/${race}-${character.subrace.toLowerCase()}-${characterClass}.png`
-            : `/character-creation/${race}-${characterClass}.png`;
-    };
-
-    // Helper function to get attribute value from either direct property or stats object
-    const getAttributeValue = (character: ExtendedCharacter, attributeName: string): number => {
-        if (character.stats && attributeName in character.stats) {
-            return character.stats[attributeName as keyof typeof character.stats] as number;
-        }
-        return character[attributeName as keyof ExtendedCharacter] as number || 0;
-    };
-
-    // Helper function to get gold value from either direct property or currencies object
-    const getGoldValue = (character: ExtendedCharacter): number | undefined => {
-        if (character.currencies && character.currencies.gold !== undefined) {
-            return character.currencies.gold;
-        }
-        return character.gold;
-    };
 
     // Load characters on component mount
     useEffect(() => {
@@ -52,11 +15,9 @@ export default function ViewCharacters() {
             try {
                 const data = await characterService.getCharacters();
                 setCharacters(data);
-                setError(null);
-            } catch (err) {
-                console.error('Failed to fetch characters:', err);
-                setError('Failed to load characters. Please try again later.');
-            } finally {
+                setLoading(false);
+            } catch (error) {
+                setError('Failed to fetch characters');
                 setLoading(false);
             }
         };
@@ -75,10 +36,37 @@ export default function ViewCharacters() {
             setCharacters(characters.filter(char => char.id !== characterId));
         } catch (err) {
             console.error('Failed to delete character:', err);
-            alert('Failed to delete character. Please try again.');
+            alert('Failed to delete character. Please try again later.');
         }
     };
 
+    // Get image path for character portrait
+    const getImagePath = (character: Character) => {
+        const race = character.race.toLowerCase();
+        const characterClass = character.class.toLowerCase();
+
+        return character.subrace
+            ? `/character-creation/${race}-${character.subrace.toLowerCase()}-${characterClass}.png`
+            : `/character-creation/${race}-${characterClass}.png`;
+    };
+
+    // Helper function to get a character's stat value
+    const getStatValue = (character: Character, statName: string): number => {
+        if (character.stats && character.stats[statName as keyof typeof character.stats] !== undefined) {
+            return character.stats[statName as keyof typeof character.stats];
+        }
+        return 0;
+    };
+
+    // Helper function to get a character's gold value
+    const getGoldValue = (character: Character): number | undefined => {
+        if (character.currencies && 'gold' in character.currencies) {
+            return character.currencies.gold;
+        }
+        return undefined;
+    };
+
+    // Loading state
     if (loading) {
         return (
             <div className="flex justify-center items-center h-screen">
@@ -90,6 +78,7 @@ export default function ViewCharacters() {
         );
     }
 
+    // Error state
     if (error) {
         return (
             <div className="flex justify-center items-center h-screen">
@@ -107,6 +96,7 @@ export default function ViewCharacters() {
         );
     }
 
+    // No characters state
     if (characters.length === 0) {
         return (
             <div className="container mx-auto py-8">
@@ -170,27 +160,27 @@ export default function ViewCharacters() {
                                 <div className="grid grid-cols-3 gap-y-2 text-sm">
                                     <div className="flex items-center">
                                         <span className="font-semibold w-9 dark:text-gray-300">STR:</span>
-                                        <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getAttributeValue(character, 'strength')}</span>
+                                        <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getStatValue(character, 'Strength')}</span>
                                     </div>
                                     <div className="flex items-center">
                                         <span className="font-semibold w-9 dark:text-gray-300">DEX:</span>
-                                        <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getAttributeValue(character, 'dexterity')}</span>
+                                        <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getStatValue(character, 'Dexterity')}</span>
                                     </div>
                                     <div className="flex items-center">
                                         <span className="font-semibold w-9 dark:text-gray-300">CON:</span>
-                                        <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getAttributeValue(character, 'constitution')}</span>
+                                        <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getStatValue(character, 'Constitution')}</span>
                                     </div>
                                     <div className="flex items-center">
                                         <span className="font-semibold w-9 dark:text-gray-300">INT:</span>
-                                        <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getAttributeValue(character, 'intelligence')}</span>
+                                        <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getStatValue(character, 'Intelligence')}</span>
                                     </div>
                                     <div className="flex items-center">
                                         <span className="font-semibold w-9 dark:text-gray-300">WIS:</span>
-                                        <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getAttributeValue(character, 'wisdom')}</span>
+                                        <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getStatValue(character, 'Wisdom')}</span>
                                     </div>
                                     <div className="flex items-center">
                                         <span className="font-semibold w-9 dark:text-gray-300">CHA:</span>
-                                        <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getAttributeValue(character, 'charisma')}</span>
+                                        <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getStatValue(character, 'Charisma')}</span>
                                     </div>
                                 </div>
                             </div>

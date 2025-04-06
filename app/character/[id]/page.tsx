@@ -2,24 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { characterService, Character, normalizeCharacter } from '../../api/characterService';
+import { characterService, Character } from '../../api/characterService';
 import Link from 'next/link';
-
-// Extended interface to accommodate both direct properties and nested properties
-interface ExtendedCharacter extends Character {
-    strength?: number;
-    dexterity?: number;
-    constitution?: number;
-    intelligence?: number;
-    wisdom?: number;
-    charisma?: number;
-    gold?: number;
-}
 
 export default function CharacterDetail() {
     const router = useRouter();
     const params = useParams();
-    const [character, setCharacter] = useState<ExtendedCharacter | null>(null);
+    const [character, setCharacter] = useState<Character | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -58,24 +47,16 @@ export default function CharacterDetail() {
             : `/character-creation/${race}-${characterClass}.png`;
     };
 
-    // Helper function to get attribute value from either direct property or stats object
-    const getAttributeValue = (attributeName: string): number => {
-        if (!character) return 0;
-
-        if (character.stats && attributeName in character.stats) {
-            return character.stats[attributeName as keyof typeof character.stats] as number;
-        }
-        return character[attributeName as keyof ExtendedCharacter] as number || 0;
+    // Helper function to get a character's stat value
+    const getStatValue = (statName: string): number => {
+        if (!character || !character.stats) return 0;
+        return character.stats[statName as keyof typeof character.stats] || 0;
     };
 
-    // Helper function to get gold value from either direct property or currencies object
+    // Helper function to get a character's gold value
     const getGoldValue = (): number => {
-        if (!character) return 0;
-
-        if (character.currencies && character.currencies.gold !== undefined) {
-            return character.currencies.gold;
-        }
-        return character.gold || 0;
+        if (!character || !character.currencies) return 0;
+        return character.currencies.gold || 0;
     };
 
     // Handle character deletion
@@ -97,19 +78,19 @@ export default function CharacterDetail() {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center min-h-[60vh]">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+            <div className="flex justify-center items-center min-h-[60vh] dark:bg-gray-900">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 dark:border-indigo-400"></div>
             </div>
         );
     }
 
     if (error || !character) {
         return (
-            <div className="text-center py-8">
-                <p className="text-red-500 mb-4">{error || 'Character not found'}</p>
+            <div className="text-center py-8 dark:bg-gray-900 dark:text-white">
+                <p className="text-red-500 mb-4 dark:text-red-400">{error || 'Character not found'}</p>
                 <Link
                     href="/characters"
-                    className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                    className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800"
                 >
                     Back to Characters
                 </Link>
@@ -157,6 +138,15 @@ export default function CharacterDetail() {
                             <p className="text-lg text-gray-700 dark:text-gray-300">
                                 {character.race} {character.subrace ? `(${character.subrace})` : ''} {character.class}
                             </p>
+
+                            {/* Hit Points */}
+                            {character.hitPoints !== undefined && character.maxHitPoints !== undefined && (
+                                <div className="mt-2">
+                                    <p className="text-gray-700 dark:text-gray-300">
+                                        HP: {character.hitPoints}/{character.maxHitPoints}
+                                    </p>
+                                </div>
+                            )}
                         </div>
 
                         {/* Attributes Section */}
@@ -164,22 +154,22 @@ export default function CharacterDetail() {
                             <h3 className="text-lg font-medium mb-3 border-b pb-2 dark:border-gray-700 dark:text-gray-200">Attributes</h3>
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                 <div>
-                                    <span className="font-semibold dark:text-gray-300">Strength:</span> {getAttributeValue('strength')}
+                                    <span className="font-semibold dark:text-gray-300">Strength:</span> {getStatValue('Strength')}
                                 </div>
                                 <div>
-                                    <span className="font-semibold dark:text-gray-300">Dexterity:</span> {getAttributeValue('dexterity')}
+                                    <span className="font-semibold dark:text-gray-300">Dexterity:</span> {getStatValue('Dexterity')}
                                 </div>
                                 <div>
-                                    <span className="font-semibold dark:text-gray-300">Constitution:</span> {getAttributeValue('constitution')}
+                                    <span className="font-semibold dark:text-gray-300">Constitution:</span> {getStatValue('Constitution')}
                                 </div>
                                 <div>
-                                    <span className="font-semibold dark:text-gray-300">Intelligence:</span> {getAttributeValue('intelligence')}
+                                    <span className="font-semibold dark:text-gray-300">Intelligence:</span> {getStatValue('Intelligence')}
                                 </div>
                                 <div>
-                                    <span className="font-semibold dark:text-gray-300">Wisdom:</span> {getAttributeValue('wisdom')}
+                                    <span className="font-semibold dark:text-gray-300">Wisdom:</span> {getStatValue('Wisdom')}
                                 </div>
                                 <div>
-                                    <span className="font-semibold dark:text-gray-300">Charisma:</span> {getAttributeValue('charisma')}
+                                    <span className="font-semibold dark:text-gray-300">Charisma:</span> {getStatValue('Charisma')}
                                 </div>
                             </div>
                         </div>

@@ -68,17 +68,26 @@ export default function CreateCharacter() {
             // Generate random attributes for the character
             const rollAttribute = () => Math.floor(Math.random() * 13) + 6; // 6-18 range
 
-            // Complete character data with attributes in the stats object
+            // Complete character data with correct stats format
             const completeCharacter: Character = {
                 ...character,
+                hitPoints: 10,
+                maxHitPoints: 10,
                 stats: {
-                    strength: rollAttribute(),
-                    dexterity: rollAttribute(),
-                    constitution: rollAttribute(),
-                    intelligence: rollAttribute(),
-                    wisdom: rollAttribute(),
-                    charisma: rollAttribute()
-                }
+                    Strength: rollAttribute(),
+                    Dexterity: rollAttribute(),
+                    Constitution: rollAttribute(),
+                    Intelligence: rollAttribute(),
+                    Wisdom: rollAttribute(),
+                    Charisma: rollAttribute()
+                },
+                equipment: {
+                    mainHand: 0,
+                    offHand: 0,
+                    shield: 0,
+                    armor: 0
+                },
+                currencies: {}
             };
 
             // Create the character

@@ -5,15 +5,10 @@ import { useRouter, useParams } from 'next/navigation';
 import { characterService, Character } from '../../api/characterService';
 import Link from 'next/link';
 
-// Extended interface to accommodate both direct properties and nested properties
-interface ExtendedCharacter extends Character {
-    gold?: number;
-}
-
 export default function FinalizeCurrency() {
     const router = useRouter();
     const params = useParams();
-    const [character, setCharacter] = useState<ExtendedCharacter | null>(null);
+    const [character, setCharacter] = useState<Character | null>(null);
     const [gold, setGold] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
     const [rollingGold, setRollingGold] = useState(false);
@@ -33,7 +28,7 @@ export default function FinalizeCurrency() {
                 setError(null);
 
                 // Automatically start rolling for gold
-                await rollForGold(data as ExtendedCharacter);
+                await rollForGold(data);
             } catch (err) {
                 console.error('Failed to fetch character:', err);
                 setError('Failed to load character. Please try again.');
@@ -49,14 +44,16 @@ export default function FinalizeCurrency() {
     const getImagePath = () => {
         if (!character) return '';
 
-        const { race, subrace, class: characterClass } = character;
-        return subrace
-            ? `/character-creation/${race}-${subrace}-${characterClass}.png`
+        const race = character.race.toLowerCase();
+        const characterClass = character.class.toLowerCase();
+
+        return character.subrace
+            ? `/character-creation/${race}-${character.subrace.toLowerCase()}-${characterClass}.png`
             : `/character-creation/${race}-${characterClass}.png`;
     };
 
     // Roll for gold
-    const rollForGold = async (characterData: ExtendedCharacter) => {
+    const rollForGold = async (characterData: Character) => {
         setRollingGold(true);
 
         try {
@@ -67,11 +64,12 @@ export default function FinalizeCurrency() {
             const currencyData = await characterService.initializeCurrency(characterData.class);
 
             // Update character with gold
-            const updatedCharacter: ExtendedCharacter = {
+            const updatedCharacter = {
                 ...characterData,
-                gold: currencyData.gold,
-                // Ensure subrace is a string
-                subrace: characterData.subrace || ''
+                currencies: {
+                    ...characterData.currencies,
+                    gold: currencyData.gold
+                }
             };
 
             try {
@@ -81,8 +79,8 @@ export default function FinalizeCurrency() {
                 if (typeof updateResponse === 'object') {
                     if (updateResponse.id) {
                         // If we got back a character object
-                        setCharacter(updateResponse as ExtendedCharacter);
-                        setGold((updateResponse as ExtendedCharacter).gold || currencyData.gold);
+                        setCharacter(updateResponse);
+                        setGold(updateResponse.currencies?.gold || currencyData.gold);
                     } else {
                         // If we got back a success response
                         setGold(currencyData.gold);
