@@ -157,96 +157,92 @@ export default function ViewCharacters() {
                         key={character.id}
                         className="border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow dark:border-gray-700 dark:bg-gray-800"
                     >
-                        <div className="relative aspect-square">
-                            <Image
-                                src={getImagePath(character)}
-                                alt={`${character.race} ${character.class}`}
-                                className="object-cover"
-                                fill
-                                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            />
-                        </div>
-
-                        <div className="p-4 dark:text-gray-200">
-                            <h2 className="text-xl font-bold mb-2 dark:text-white">{character.name}</h2>
-                            <p className="text-gray-700 mb-3 dark:text-gray-300">
-                                {character.race} {character.subrace ? `(${character.subrace})` : ''} {character.class}
-                            </p>
-
-                            {/* Enhanced attributes display */}
-                            <div className="mt-2 p-3 bg-gray-50 rounded-md border border-gray-200 dark:bg-gray-700 dark:border-gray-600">
-                                <p className="text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Attributes:</p>
-                                <div className="grid grid-cols-3 gap-y-2 text-sm">
-                                    <div className="flex items-center">
-                                        <span className="font-semibold w-9 dark:text-gray-300">STR:</span>
-                                        <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getStatValue(character, 'Strength')}</span>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <span className="font-semibold w-9 dark:text-gray-300">DEX:</span>
-                                        <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getStatValue(character, 'Dexterity')}</span>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <span className="font-semibold w-9 dark:text-gray-300">CON:</span>
-                                        <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getStatValue(character, 'Constitution')}</span>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <span className="font-semibold w-9 dark:text-gray-300">INT:</span>
-                                        <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getStatValue(character, 'Intelligence')}</span>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <span className="font-semibold w-9 dark:text-gray-300">WIS:</span>
-                                        <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getStatValue(character, 'Wisdom')}</span>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <span className="font-semibold w-9 dark:text-gray-300">CHA:</span>
-                                        <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getStatValue(character, 'Charisma')}</span>
-                                    </div>
-                                </div>
+                        <Link href={`/character/${character.id}`} className="block">
+                            <div className="relative aspect-square">
+                                <Image
+                                    src={getImagePath(character)}
+                                    alt={`${character.race} ${character.class}`}
+                                    className="object-cover"
+                                    fill
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                />
                             </div>
 
-                            {/* Currency display */}
-                            {(getCurrencyValue(character, 'gold') > 0 || getCurrencyValue(character, 'silver') > 0 || getCurrencyValue(character, 'copper') > 0) && (
-                                <div className="mt-3 p-3 bg-gray-50 rounded-md border border-gray-200 dark:bg-gray-700 dark:border-gray-600">
-                                    <p className="text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Currency:</p>
-                                    <div className="flex flex-wrap gap-2">
-                                        {getCurrencyValue(character, 'gold') > 0 && (
-                                            <div className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs flex items-center dark:bg-yellow-900 dark:text-yellow-200">
-                                                <span className="text-yellow-600 font-bold mr-1 dark:text-yellow-400">⦿</span>
-                                                {getCurrencyValue(character, 'gold')} gold
-                                            </div>
-                                        )}
+                            <div className="p-4 dark:text-gray-200">
+                                <h2 className="text-xl font-bold mb-2 dark:text-white">{character.name}</h2>
+                                <p className="text-gray-700 mb-3 dark:text-gray-300">
+                                    {character.race} {character.subrace ? `(${character.subrace})` : ''} {character.class}
+                                </p>
 
-                                        {getCurrencyValue(character, 'silver') > 0 && (
-                                            <div className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs flex items-center dark:bg-gray-700 dark:text-gray-200">
-                                                <span className="text-gray-500 font-bold mr-1 dark:text-gray-400">⦿</span>
-                                                {getCurrencyValue(character, 'silver')} silver
-                                            </div>
-                                        )}
-
-                                        {getCurrencyValue(character, 'copper') > 0 && (
-                                            <div className="bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-xs flex items-center dark:bg-amber-900 dark:text-amber-200">
-                                                <span className="text-amber-600 font-bold mr-1 dark:text-amber-400">⦿</span>
-                                                {getCurrencyValue(character, 'copper')} copper
-                                            </div>
-                                        )}
+                                {/* Enhanced attributes display */}
+                                <div className="mt-2 p-3 bg-gray-50 rounded-md border border-gray-200 dark:bg-gray-700 dark:border-gray-600">
+                                    <p className="text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Attributes:</p>
+                                    <div className="grid grid-cols-3 gap-y-2 text-sm">
+                                        <div className="flex items-center">
+                                            <span className="font-semibold w-9 dark:text-gray-300">STR:</span>
+                                            <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getStatValue(character, 'Strength')}</span>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <span className="font-semibold w-9 dark:text-gray-300">DEX:</span>
+                                            <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getStatValue(character, 'Dexterity')}</span>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <span className="font-semibold w-9 dark:text-gray-300">CON:</span>
+                                            <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getStatValue(character, 'Constitution')}</span>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <span className="font-semibold w-9 dark:text-gray-300">INT:</span>
+                                            <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getStatValue(character, 'Intelligence')}</span>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <span className="font-semibold w-9 dark:text-gray-300">WIS:</span>
+                                            <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getStatValue(character, 'Wisdom')}</span>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <span className="font-semibold w-9 dark:text-gray-300">CHA:</span>
+                                            <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{getStatValue(character, 'Charisma')}</span>
+                                        </div>
                                     </div>
                                 </div>
-                            )}
 
-                            <div className="mt-4 flex justify-between items-center">
-                                <Link
-                                    href={`/character/${character.id}`}
-                                    className="px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800"
-                                >
-                                    View
-                                </Link>
-                                <button
-                                    onClick={() => handleDelete(character.id!)}
-                                    className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
-                                >
-                                    Delete
-                                </button>
+                                {/* Currency display */}
+                                {(getCurrencyValue(character, 'gold') > 0 || getCurrencyValue(character, 'silver') > 0 || getCurrencyValue(character, 'copper') > 0) && (
+                                    <div className="mt-3 p-3 bg-gray-50 rounded-md border border-gray-200 dark:bg-gray-700 dark:border-gray-600">
+                                        <p className="text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Currency:</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {getCurrencyValue(character, 'gold') > 0 && (
+                                                <div className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs flex items-center dark:bg-yellow-900 dark:text-yellow-200">
+                                                    <span className="text-yellow-600 font-bold mr-1 dark:text-yellow-400">⦿</span>
+                                                    {getCurrencyValue(character, 'gold')} gold
+                                                </div>
+                                            )}
+
+                                            {getCurrencyValue(character, 'silver') > 0 && (
+                                                <div className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs flex items-center dark:bg-gray-700 dark:text-gray-200">
+                                                    <span className="text-gray-500 font-bold mr-1 dark:text-gray-400">⦿</span>
+                                                    {getCurrencyValue(character, 'silver')} silver
+                                                </div>
+                                            )}
+
+                                            {getCurrencyValue(character, 'copper') > 0 && (
+                                                <div className="bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-xs flex items-center dark:bg-amber-900 dark:text-amber-200">
+                                                    <span className="text-amber-600 font-bold mr-1 dark:text-amber-400">⦿</span>
+                                                    {getCurrencyValue(character, 'copper')} copper
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
+                        </Link>
+
+                        <div className="px-4 pb-4 flex justify-end items-center">
+                            <button
+                                onClick={() => handleDelete(character.id!)}
+                                className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
+                            >
+                                Delete
+                            </button>
                         </div>
                     </div>
                 ))}
