@@ -5,15 +5,17 @@ export interface Character {
     race: string;
     subrace: string | null;
     class: string;
+    background: string;
+    alignment: string;
     hitPoints?: number;
     maxHitPoints?: number;
-    stats?: {
-        Strength: number;
-        Dexterity: number;
-        Constitution: number;
-        Intelligence: number;
-        Wisdom: number;
-        Charisma: number;
+    stats: {
+        strength: number;
+        dexterity: number;
+        constitution: number;
+        intelligence: number;
+        wisdom: number;
+        charisma: number;
     };
     equipment?: {
         mainHand: number;
@@ -21,7 +23,13 @@ export interface Character {
         shield: number;
         armor: number;
     };
-    currencies?: Record<string, number>;
+    currencies: {
+        gold: number;
+        silver: number;
+        copper: number;
+    };
+    armorClass: number;
+    proficiencyBonus: number;
 }
 
 // Helper function to normalize character data
@@ -56,8 +64,7 @@ export const characterService = {
     },
 
     // Create a new character
-    async createCharacter(character: Character): Promise<Character> {
-        // Use the character format directly
+    async createCharacter(character: Omit<Character, 'id'>): Promise<Character> {
         const response = await fetch(`${API_URL}/characters`, {
             method: 'POST',
             headers: {
@@ -65,11 +72,12 @@ export const characterService = {
             },
             body: JSON.stringify(character),
         });
+
         if (!response.ok) {
             throw new Error('Failed to create character');
         }
-        const data = await response.json();
-        return data;
+
+        return response.json();
     },
 
     // Update a character
@@ -168,15 +176,17 @@ export function getRandomCharacter(): Omit<Character, 'id'> {
         race: randomRace,
         subrace: randomSubrace,
         class: randomClass,
+        background: 'Unknown',
+        alignment: 'True Neutral',
         hitPoints: 10,
         maxHitPoints: 10,
         stats: {
-            Strength: rollAttribute(),
-            Dexterity: rollAttribute(),
-            Constitution: rollAttribute(),
-            Intelligence: rollAttribute(),
-            Wisdom: rollAttribute(),
-            Charisma: rollAttribute()
+            strength: rollAttribute(),
+            dexterity: rollAttribute(),
+            constitution: rollAttribute(),
+            intelligence: rollAttribute(),
+            wisdom: rollAttribute(),
+            charisma: rollAttribute()
         },
         equipment: {
             mainHand: 0,
@@ -184,6 +194,12 @@ export function getRandomCharacter(): Omit<Character, 'id'> {
             shield: 0,
             armor: 0
         },
-        currencies: {}
+        currencies: {
+            gold: 0,
+            silver: 0,
+            copper: 0
+        },
+        armorClass: 10,
+        proficiencyBonus: 2
     };
 } 

@@ -160,12 +160,12 @@ export default function CharacterDetail() {
             <div className="bg-white shadow-lg rounded-lg overflow-hidden dark:bg-gray-800">
                 <div className="md:flex">
                     {/* Character Portrait */}
-                    <div className="md:w-1/3">
-                        <div className="relative aspect-square">
+                    <div className="md:w-1/3 flex items-center justify-center p-6">
+                        <div className="relative w-full max-w-md aspect-square">
                             <Image
                                 src={getImagePath()}
                                 alt={`${character.race} ${character.class} character portrait`}
-                                className="object-cover"
+                                className="object-cover rounded-lg"
                                 fill
                                 sizes="(max-width: 768px) 100vw, 33vw"
                                 priority
@@ -212,6 +212,25 @@ export default function CharacterDetail() {
                                 </div>
                                 <div>
                                     <span className="font-semibold dark:text-gray-300">Charisma:</span> {getStatValue('Charisma')}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Combat Stats Section */}
+                        <div className="mb-6">
+                            <h3 className="text-lg font-medium mb-3 border-b pb-2 dark:border-gray-700 dark:text-gray-200">Combat Stats</h3>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                <div>
+                                    <span className="font-semibold dark:text-gray-300">Armor Class:</span>{' '}
+                                    <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-700 dark:text-gray-200">
+                                        {character.armorClass || 10}
+                                    </span>
+                                </div>
+                                <div>
+                                    <span className="font-semibold dark:text-gray-300">Proficiency:</span>{' '}
+                                    <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-700 dark:text-gray-200">
+                                        +{character.proficiencyBonus || 2}
+                                    </span>
                                 </div>
                             </div>
                         </div>

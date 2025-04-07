@@ -205,6 +205,21 @@ export default function ViewCharacters() {
                                     </div>
                                 </div>
 
+                                {/* Combat Stats */}
+                                <div className="mt-2 p-3 bg-gray-50 rounded-md border border-gray-200 dark:bg-gray-700 dark:border-gray-600">
+                                    <p className="text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Combat Stats:</p>
+                                    <div className="grid grid-cols-2 gap-y-2 text-sm">
+                                        <div className="flex items-center">
+                                            <span className="font-semibold w-24 dark:text-gray-300">Armor Class:</span>
+                                            <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">{character.armorClass || 10}</span>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <span className="font-semibold w-24 dark:text-gray-300">Proficiency:</span>
+                                            <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-600 dark:text-gray-200">+{character.proficiencyBonus || 2}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 {/* Currency display */}
                                 {(getCurrencyValue(character, 'gold') > 0 || getCurrencyValue(character, 'silver') > 0 || getCurrencyValue(character, 'copper') > 0) && (
                                     <div className="mt-3 p-3 bg-gray-50 rounded-md border border-gray-200 dark:bg-gray-700 dark:border-gray-600">
