@@ -54,8 +54,8 @@ export default function ViewCharacters() {
 
     // Helper function to get a character's stat value
     const getStatValue = (character: Character, statName: string): number => {
-        if (character.stats && character.stats[statName as keyof typeof character.stats] !== undefined) {
-            return character.stats[statName as keyof typeof character.stats];
+        if (character.abilityScores && character.abilityScores[statName as keyof typeof character.abilityScores] !== undefined) {
+            return character.abilityScores[statName as keyof typeof character.abilityScores];
         }
         return 0;
     };
@@ -64,18 +64,18 @@ export default function ViewCharacters() {
     const getCurrencyValue = (character: Character, currencyType: string): number => {
         if (!character) return 0;
 
-        // Check if we have currencies object with the currency property
-        if (character.currencies && typeof character.currencies === 'object') {
+        // Check if we have wealth object with the currency property
+        if (character.wealth && typeof character.wealth === 'object') {
             // Check with lowercase currencyType as a key (e.g., 'gold')
-            const lowerCaseKey = currencyType.toLowerCase();
-            if (lowerCaseKey in character.currencies && typeof character.currencies[lowerCaseKey] === 'number') {
-                return character.currencies[lowerCaseKey];
+            const lowerCaseKey = currencyType.toLowerCase() as keyof typeof character.wealth;
+            if (lowerCaseKey in character.wealth && typeof character.wealth[lowerCaseKey] === 'number') {
+                return character.wealth[lowerCaseKey];
             }
 
             // Check with capitalized currencyType as a key (e.g., 'Gold')
-            const capitalizedKey = currencyType.charAt(0).toUpperCase() + currencyType.slice(1).toLowerCase();
-            if (capitalizedKey in character.currencies && typeof character.currencies[capitalizedKey] === 'number') {
-                return character.currencies[capitalizedKey];
+            const capitalizedKey = currencyType.charAt(0).toUpperCase() + currencyType.slice(1).toLowerCase() as keyof typeof character.wealth;
+            if (capitalizedKey in character.wealth && typeof character.wealth[capitalizedKey] === 'number') {
+                return character.wealth[capitalizedKey];
             }
         }
 

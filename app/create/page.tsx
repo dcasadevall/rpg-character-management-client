@@ -74,13 +74,13 @@ export default function CreateCharacter() {
                 ...character,
                 hitPoints: 10,
                 maxHitPoints: 10,
-                stats: {
-                    Strength: rollAttribute(),
-                    Dexterity: rollAttribute(),
-                    Constitution: rollAttribute(),
-                    Intelligence: rollAttribute(),
-                    Wisdom: rollAttribute(),
-                    Charisma: rollAttribute()
+                abilityScores: {
+                    strength: rollAttribute(),
+                    dexterity: rollAttribute(),
+                    constitution: rollAttribute(),
+                    intelligence: rollAttribute(),
+                    wisdom: rollAttribute(),
+                    charisma: rollAttribute()
                 },
                 equipment: {
                     mainHand: 0,
@@ -88,7 +88,11 @@ export default function CreateCharacter() {
                     shield: 0,
                     armor: 0
                 },
-                currencies: {}
+                wealth: {
+                    gold: 0,
+                    silver: 0,
+                    copper: 0
+                }
             };
 
             // Create the character

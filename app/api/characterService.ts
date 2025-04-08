@@ -9,7 +9,7 @@ export interface Character {
     alignment: string;
     hitPoints?: number;
     maxHitPoints?: number;
-    stats: {
+    abilityScores: {
         strength: number;
         dexterity: number;
         constitution: number;
@@ -23,13 +23,34 @@ export interface Character {
         shield: number;
         armor: number;
     };
-    currencies: {
+    wealth: {
         gold: number;
         silver: number;
         copper: number;
     };
     armorClass: number;
     proficiencyBonus: number;
+    stats: {
+        strength: number;
+        dexterity: number;
+        constitution: number;
+        intelligence: number;
+        wisdom: number;
+        charisma: number;
+    };
+    abilityModifiers: {
+        strength: number;
+        dexterity: number;
+        constitution: number;
+        intelligence: number;
+        wisdom: number;
+        charisma: number;
+    };
+    wallet: {
+        gold: number;
+        silver: number;
+        copper: number;
+    };
 }
 
 // Helper function to normalize character data
@@ -180,7 +201,7 @@ export function getRandomCharacter(): Omit<Character, 'id'> {
         alignment: 'True Neutral',
         hitPoints: 10,
         maxHitPoints: 10,
-        stats: {
+        abilityScores: {
             strength: rollAttribute(),
             dexterity: rollAttribute(),
             constitution: rollAttribute(),
@@ -194,7 +215,7 @@ export function getRandomCharacter(): Omit<Character, 'id'> {
             shield: 0,
             armor: 0
         },
-        currencies: {
+        wealth: {
             gold: 0,
             silver: 0,
             copper: 0

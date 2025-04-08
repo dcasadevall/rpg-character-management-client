@@ -50,51 +50,30 @@ export default function CharacterDetail() {
 
     // Helper function to get a character's stat value
     const getStatValue = (statName: string): number => {
-        if (!character || !character.stats) return 0;
-        return character.stats[statName as keyof typeof character.stats] || 0;
+        if (!character || !character.abilityScores) return 0;
+        return character.abilityScores[statName as keyof typeof character.abilityScores] || 0;
     };
 
     // Helper function to get a character's currency value
     const getCurrencyValue = (currencyType: string): number => {
         if (!character) return 0;
 
-        // Check if we have currencies object with the currency property
-        if (character.currencies && typeof character.currencies === 'object') {
+        // Check if we have wealth object with the currency property
+        if (character.wealth && typeof character.wealth === 'object') {
             // Check with lowercase currencyType as a key (e.g., 'gold')
-            const lowerCaseKey = currencyType.toLowerCase();
-            if (lowerCaseKey in character.currencies && typeof character.currencies[lowerCaseKey] === 'number') {
-                return character.currencies[lowerCaseKey];
+            const lowerCaseKey = currencyType.toLowerCase() as keyof typeof character.wealth;
+            if (lowerCaseKey in character.wealth && typeof character.wealth[lowerCaseKey] === 'number') {
+                return character.wealth[lowerCaseKey];
             }
 
             // Check with capitalized currencyType as a key (e.g., 'Gold')
-            const capitalizedKey = currencyType.charAt(0).toUpperCase() + currencyType.slice(1).toLowerCase();
-            if (capitalizedKey in character.currencies && typeof character.currencies[capitalizedKey] === 'number') {
-                return character.currencies[capitalizedKey];
+            const capitalizedKey = currencyType.charAt(0).toUpperCase() + currencyType.slice(1).toLowerCase() as keyof typeof character.wealth;
+            if (capitalizedKey in character.wealth && typeof character.wealth[capitalizedKey] === 'number') {
+                return character.wealth[capitalizedKey];
             }
         }
 
         // If no currency found, return 0
-        return 0;
-    };
-
-    // Helper function to get a character's gold value
-    const getGoldValue = (): number => {
-        if (!character) return 0;
-
-        // Check if we have currencies object with gold property
-        if (character.currencies && typeof character.currencies === 'object') {
-            // Check with 'gold' as a key
-            if ('gold' in character.currencies && typeof character.currencies.gold === 'number') {
-                return character.currencies.gold;
-            }
-
-            // Check with 'Gold' as a key (capitalized)
-            if ('Gold' in character.currencies && typeof character.currencies.Gold === 'number') {
-                return character.currencies.Gold;
-            }
-        }
-
-        // If no gold found, return 0
         return 0;
     };
 
@@ -196,22 +175,28 @@ export default function CharacterDetail() {
                             <h3 className="text-lg font-medium mb-3 border-b pb-2 dark:border-gray-700 dark:text-gray-200">Attributes</h3>
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                 <div>
-                                    <span className="font-semibold dark:text-gray-300">Strength:</span> {getStatValue('Strength')}
+                                    <span className="font-semibold dark:text-gray-300">Strength:</span>{' '}
+                                    <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-700 dark:text-gray-200">{getStatValue('Strength')}</span>
                                 </div>
                                 <div>
-                                    <span className="font-semibold dark:text-gray-300">Dexterity:</span> {getStatValue('Dexterity')}
+                                    <span className="font-semibold dark:text-gray-300">Dexterity:</span>{' '}
+                                    <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-700 dark:text-gray-200">{getStatValue('Dexterity')}</span>
                                 </div>
                                 <div>
-                                    <span className="font-semibold dark:text-gray-300">Constitution:</span> {getStatValue('Constitution')}
+                                    <span className="font-semibold dark:text-gray-300">Constitution:</span>{' '}
+                                    <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-700 dark:text-gray-200">{getStatValue('Constitution')}</span>
                                 </div>
                                 <div>
-                                    <span className="font-semibold dark:text-gray-300">Intelligence:</span> {getStatValue('Intelligence')}
+                                    <span className="font-semibold dark:text-gray-300">Intelligence:</span>{' '}
+                                    <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-700 dark:text-gray-200">{getStatValue('Intelligence')}</span>
                                 </div>
                                 <div>
-                                    <span className="font-semibold dark:text-gray-300">Wisdom:</span> {getStatValue('Wisdom')}
+                                    <span className="font-semibold dark:text-gray-300">Wisdom:</span>{' '}
+                                    <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-700 dark:text-gray-200">{getStatValue('Wisdom')}</span>
                                 </div>
                                 <div>
-                                    <span className="font-semibold dark:text-gray-300">Charisma:</span> {getStatValue('Charisma')}
+                                    <span className="font-semibold dark:text-gray-300">Charisma:</span>{' '}
+                                    <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-700 dark:text-gray-200">{getStatValue('Charisma')}</span>
                                 </div>
                             </div>
                         </div>
