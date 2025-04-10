@@ -18,10 +18,10 @@ export interface Character {
         charisma: number;
     };
     equipment?: {
-        mainHand: number;
-        offHand: number;
-        shield: number;
-        armor: number;
+        mainHandId: number;
+        offHandId: number;
+        shieldId: number;
+        armorId: number;
     };
     wealth: {
         gold: number;
