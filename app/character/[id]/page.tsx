@@ -40,7 +40,7 @@ export default function CharacterDetail() {
         fetchCharacter();
     }, [params.id]);
 
-    // Handle click outside popover and Escape key
+    // Handle click outside popover
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
@@ -49,6 +49,7 @@ export default function CharacterDetail() {
             }
         };
 
+        // Handle Escape key
         const handleEscapeKey = (event: KeyboardEvent) => {
             if (event.key === 'Escape') {
                 setShowEquipmentPopover(false);
@@ -136,7 +137,7 @@ export default function CharacterDetail() {
         }
 
         try {
-            let updatedCharacter: Character;
+            let updatedCharacter;
             if (itemType === 'shield') {
                 // Shields always go to offhand
                 updatedCharacter = await characterService.equipItem(
@@ -144,7 +145,7 @@ export default function CharacterDetail() {
                     'shield',
                     itemId
                 );
-            } else if (selectedSlot === 'mainHand' || selectedSlot === 'offHand') {
+            } else if (itemType === 'weapon') {
                 // For weapons, specify if it's going to the offhand
                 updatedCharacter = await characterService.equipItem(
                     character.id!,
@@ -152,15 +153,13 @@ export default function CharacterDetail() {
                     itemId,
                     selectedSlot === 'offHand'
                 );
-            } else if (selectedSlot === 'armor') {
+            } else {
                 // Armor goes to armor slot
                 updatedCharacter = await characterService.equipItem(
                     character.id!,
                     'armor',
                     itemId
                 );
-            } else {
-                return; // Invalid slot
             }
             setCharacter(updatedCharacter);
             setShowEquipmentPopover(false);
@@ -311,6 +310,12 @@ export default function CharacterDetail() {
                                         +{character.proficiencyBonus || 2}
                                     </span>
                                 </div>
+                                <div>
+                                    <span className="font-semibold dark:text-gray-300">Weapon Modifier:</span>{' '}
+                                    <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-700 dark:text-gray-200">
+                                        {character.weaponDamageModifier == 1 ? "DEX" : "STR"}
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
@@ -451,7 +456,7 @@ export default function CharacterDetail() {
                                     <div
                                         key={`item-${item.id}`}
                                         className="relative aspect-square cursor-pointer"
-                                        onClick={() => handleItemSelect(parseInt(item.id), item.equipmentType as 'weapon' | 'armor' | 'shield')}
+                                        onClick={() => handleItemSelect(parseInt(item.id), item.equipmentType.toLowerCase() as 'weapon' | 'armor' | 'shield')}
                                     >
                                         <Image
                                             src={getItemImagePath(parseInt(item.id))}
