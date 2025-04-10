@@ -151,7 +151,41 @@ export const characterService = {
 
         const data = await response.json();
         return data;
-    }
+    },
+
+    // Equip an item
+    async equipItem(characterId: string, slot: 'weapon' | 'armor' | 'shield', itemId: number, isOffhand: boolean = false): Promise<Character> {
+        const url = `${API_URL}/characters/${characterId}/equipment/${slot}/${itemId}`;
+        const body = slot === 'weapon' ? { offhand: isOffhand } : undefined;
+
+        console.log('Equipping item:', {
+            url,
+            slot,
+            itemId,
+            isOffhand,
+            body
+        });
+
+        const response = await fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: body ? JSON.stringify(body) : undefined
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Failed to equip item:', {
+                status: response.status,
+                statusText: response.statusText,
+                error: errorText
+            });
+            throw new Error(`Failed to equip item: ${response.status} ${response.statusText}`);
+        }
+
+        return response.json();
+    },
 };
 
 // Data from the portrait generation script

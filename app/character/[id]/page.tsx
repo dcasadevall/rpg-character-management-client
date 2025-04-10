@@ -12,6 +12,8 @@ export default function CharacterDetail() {
     const [character, setCharacter] = useState<Character | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [selectedSlot, setSelectedSlot] = useState<'mainHand' | 'offHand' | 'armor' | null>(null);
+    const [showEquipmentPopover, setShowEquipmentPopover] = useState(false);
 
     useEffect(() => {
         const fetchCharacter = async () => {
@@ -75,6 +77,55 @@ export default function CharacterDetail() {
 
         // If no currency found, return 0
         return 0;
+    };
+
+    // Get item image path
+    const getItemImagePath = (id: number) => {
+        return `/items/${id}.png`;
+    };
+
+    // Handle equipment slot click
+    const handleEquipmentSlotClick = (slot: 'mainHand' | 'offHand' | 'armor') => {
+        setSelectedSlot(slot);
+        setShowEquipmentPopover(true);
+    };
+
+    // Handle item selection
+    const handleItemSelect = async (itemId: number, itemType: 'weapon' | 'armor' | 'shield') => {
+        if (!character || !selectedSlot) return;
+
+        try {
+            let updatedCharacter;
+            if (itemType === 'shield') {
+                // Shields always go to offhand
+                updatedCharacter = await characterService.equipItem(
+                    character.id!,
+                    'shield',
+                    itemId
+                );
+            } else if (itemType === 'weapon') {
+                // For weapons, specify if it's going to the offhand
+                updatedCharacter = await characterService.equipItem(
+                    character.id!,
+                    'weapon',
+                    itemId,
+                    selectedSlot === 'offHand'
+                );
+            } else {
+                // Armor goes to armor slot
+                updatedCharacter = await characterService.equipItem(
+                    character.id!,
+                    'armor',
+                    itemId
+                );
+            }
+            setCharacter(updatedCharacter);
+            setShowEquipmentPopover(false);
+            setSelectedSlot(null);
+        } catch (err) {
+            console.error('Failed to equip item:', err);
+            alert('Failed to equip item. Please try again.');
+        }
     };
 
     // Handle character deletion
@@ -242,11 +293,143 @@ export default function CharacterDetail() {
                                 </div>
                             </div>
 
-                            {/* Other equipment would go here */}
+                            {/* Equipped Items */}
+                            <div className="mb-4">
+                                <div className="flex justify-between items-center mb-2">
+                                    <h4 className="text-md font-medium dark:text-gray-300">Equipped Items</h4>
+                                </div>
+                                <div className="grid grid-cols-3 gap-4">
+                                    {/* Main Hand */}
+                                    <div
+                                        className="relative aspect-square border-2 border-dashed border-gray-300 rounded-lg dark:border-gray-600 cursor-pointer"
+                                        onClick={() => handleEquipmentSlotClick('mainHand')}
+                                    >
+                                        {character.equipment?.mainHand && (
+                                            <Image
+                                                src={getItemImagePath(character.equipment.mainHand)}
+                                                alt="Main Hand"
+                                                className="object-contain p-2"
+                                                fill
+                                                sizes="(max-width: 768px) 100px, 150px"
+                                            />
+                                        )}
+                                    </div>
+
+                                    {/* Armor */}
+                                    <div
+                                        className="relative aspect-square border-2 border-dashed border-gray-300 rounded-lg dark:border-gray-600 cursor-pointer"
+                                        onClick={() => handleEquipmentSlotClick('armor')}
+                                    >
+                                        {character.equipment?.armor && (
+                                            <Image
+                                                src={getItemImagePath(character.equipment.armor)}
+                                                alt="Armor"
+                                                className="object-contain p-2"
+                                                fill
+                                                sizes="(max-width: 768px) 100px, 150px"
+                                            />
+                                        )}
+                                    </div>
+
+                                    {/* Off Hand */}
+                                    <div
+                                        className="relative aspect-square border-2 border-dashed border-gray-300 rounded-lg dark:border-gray-600 cursor-pointer"
+                                        onClick={() => handleEquipmentSlotClick('offHand')}
+                                    >
+                                        {character.equipment?.offHand && (
+                                            <Image
+                                                src={getItemImagePath(character.equipment.offHand)}
+                                                alt="Off Hand"
+                                                className="object-contain p-2"
+                                                fill
+                                                sizes="(max-width: 768px) 100px, 150px"
+                                            />
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* Equipment Selection Popover */}
+            {showEquipmentPopover && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-xl font-bold dark:text-white">
+                                Select {selectedSlot === 'mainHand' ? 'Weapon' : selectedSlot === 'armor' ? 'Armor' : 'Off-hand Item'}
+                            </h3>
+                            <button
+                                onClick={() => {
+                                    setShowEquipmentPopover(false);
+                                    setSelectedSlot(null);
+                                }}
+                                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4">
+                            {/* Weapons (1-37) - only show for main hand and off hand */}
+                            {(selectedSlot === 'mainHand' || selectedSlot === 'offHand') && (
+                                Array.from({ length: 37 }, (_, i) => i + 1).map((id) => (
+                                    <div
+                                        key={`weapon-${id}`}
+                                        className="relative aspect-square cursor-pointer"
+                                        onClick={() => handleItemSelect(id, 'weapon')}
+                                    >
+                                        <Image
+                                            src={getItemImagePath(id)}
+                                            alt={`Item ${id}`}
+                                            className="object-contain p-2"
+                                            fill
+                                            sizes="(max-width: 768px) 50px, 75px"
+                                        />
+                                    </div>
+                                ))
+                            )}
+
+                            {/* Armor (38-49) - only show for armor slot */}
+                            {selectedSlot === 'armor' && (
+                                Array.from({ length: 12 }, (_, i) => i + 38).map((id) => (
+                                    <div
+                                        key={`armor-${id}`}
+                                        className="relative aspect-square cursor-pointer"
+                                        onClick={() => handleItemSelect(id, 'armor')}
+                                    >
+                                        <Image
+                                            src={getItemImagePath(id)}
+                                            alt={`Item ${id}`}
+                                            className="object-contain p-2"
+                                            fill
+                                            sizes="(max-width: 768px) 50px, 75px"
+                                        />
+                                    </div>
+                                ))
+                            )}
+
+                            {/* Shield (50) - only show for off hand */}
+                            {selectedSlot === 'offHand' && (
+                                <div
+                                    className="relative aspect-square cursor-pointer"
+                                    onClick={() => handleItemSelect(50, 'shield')}
+                                >
+                                    <Image
+                                        src={getItemImagePath(50)}
+                                        alt="Item 50"
+                                        className="object-contain p-2"
+                                        fill
+                                        sizes="(max-width: 768px) 50px, 75px"
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 } 

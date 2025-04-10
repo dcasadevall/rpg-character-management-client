@@ -215,4 +215,61 @@ export async function DELETE(request: NextRequest, { params }: { params: { path:
         console.error(`Error proxying DELETE request to ${url}:`, error);
         return NextResponse.json({ error: 'Failed to delete data from API' }, { status: 500 });
     }
+}
+
+export async function PATCH(request: NextRequest, { params }: { params: { path: string[] } }) {
+    const path = params.path.join('/');
+    const url = `${API_BASE_URL}/${path}`;
+
+    try {
+        let requestBody = {};
+        try {
+            requestBody = await request.json();
+        } catch (error) {
+            console.log('No JSON body provided or invalid JSON');
+        }
+
+        console.log('Sending PATCH request to:', url);
+        console.log('Request body:', requestBody);
+        console.log('Request headers:', request.headers);
+
+        const response = await fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+        });
+
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+
+        if (response.ok) {
+            try {
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    const text = await response.text();
+                    if (text && text.trim()) {
+                        const data = JSON.parse(text);
+                        return NextResponse.json(data);
+                    }
+                }
+
+                return NextResponse.json({ success: true, status: response.status });
+            } catch (parseError) {
+                console.error(`Error parsing JSON response: ${parseError}`);
+                return NextResponse.json({ success: true, status: response.status });
+            }
+        } else {
+            const errorText = await response.text();
+            console.error(`API returned error status ${response.status}: ${errorText}`);
+            return NextResponse.json(
+                { error: `API returned status ${response.status}`, details: errorText },
+                { status: response.status }
+            );
+        }
+    } catch (error) {
+        console.error(`Error proxying PATCH request to ${url}:`, error);
+        return NextResponse.json({ error: 'Failed to update data in API' }, { status: 500 });
+    }
 } 
