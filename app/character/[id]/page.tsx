@@ -15,7 +15,9 @@ export default function CharacterDetail() {
     const [error, setError] = useState<string | null>(null);
     const [selectedSlot, setSelectedSlot] = useState<'mainHand' | 'offHand' | 'armor' | null>(null);
     const [showEquipmentPopover, setShowEquipmentPopover] = useState(false);
+    const [floatingNumbers, setFloatingNumbers] = useState<Array<{ id: number, amount: number, isHeal: boolean }>>([]);
     const popoverRef = useRef<HTMLDivElement>(null);
+    const nextId = useRef(0);
 
     useEffect(() => {
         const fetchCharacter = async () => {
@@ -187,6 +189,14 @@ export default function CharacterDetail() {
         }
     };
 
+    const showFloatingNumber = (amount: number, isHeal: boolean) => {
+        const id = nextId.current++;
+        setFloatingNumbers(prev => [...prev, { id, amount, isHeal }]);
+        setTimeout(() => {
+            setFloatingNumbers(prev => prev.filter(n => n.id !== id));
+        }, 1000);
+    };
+
     if (loading) {
         return (
             <div className="flex justify-center items-center min-h-[60vh] dark:bg-gray-900">
@@ -232,16 +242,105 @@ export default function CharacterDetail() {
             <div className="bg-white shadow-lg rounded-lg overflow-hidden dark:bg-gray-800">
                 <div className="md:flex">
                     {/* Character Portrait */}
-                    <div className="md:w-1/3 flex items-center justify-center p-6">
+                    <div className="md:w-1/3 flex flex-col items-center justify-center p-6">
+                        {/* Health UI */}
+                        <div className="flex justify-center items-center gap-4 mb-4">
+                            {/* Healing Button */}
+                            <button
+                                onClick={async () => {
+                                    const healAmount = Math.floor(Math.random() * 10) + 1;
+                                    try {
+                                        const response = await fetch(`/api/proxy/characters/${character.id}/stats/hitpoints`, {
+                                            method: 'PATCH',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                            },
+                                            body: JSON.stringify({ delta: healAmount }),
+                                        });
+                                        if (response.ok) {
+                                            const updatedCharacter = await characterService.getCharacter(character.id!);
+                                            setCharacter(updatedCharacter);
+                                            // Show floating heal number
+                                            showFloatingNumber(healAmount, true);
+                                        }
+                                    } catch (err) {
+                                        console.error('Failed to heal:', err);
+                                    }
+                                }}
+                                className="bg-green-500 hover:bg-green-600 text-white p-2 rounded-full transition-transform hover:scale-110"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                            </button>
+
+                            {/* Health Display */}
+                            <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-800/80 px-4 py-2 rounded-full shadow-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                </svg>
+                                <span className="font-bold text-gray-800 dark:text-gray-200">
+                                    {character.hitPoints || 0}/{character.maxHitPoints || 0}
+                                </span>
+                            </div>
+
+                            {/* Damage Button */}
+                            <button
+                                onClick={async () => {
+                                    const damageAmount = -(Math.floor(Math.random() * 10) + 1);
+                                    try {
+                                        const response = await fetch(`/api/proxy/characters/${character.id}/stats/hitpoints`, {
+                                            method: 'PATCH',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                            },
+                                            body: JSON.stringify({ delta: damageAmount }),
+                                        });
+                                        if (response.ok) {
+                                            const updatedCharacter = await characterService.getCharacter(character.id!);
+                                            setCharacter(updatedCharacter);
+                                            // Add shake animation
+                                            const portrait = document.querySelector('.character-portrait');
+                                            if (portrait) {
+                                                portrait.classList.add('shake');
+                                                setTimeout(() => {
+                                                    portrait.classList.remove('shake');
+                                                }, 500);
+                                            }
+                                            // Show floating damage number
+                                            showFloatingNumber(Math.abs(damageAmount), false);
+                                        }
+                                    } catch (err) {
+                                        console.error('Failed to damage:', err);
+                                    }
+                                }}
+                                className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full transition-transform hover:scale-110"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                                </svg>
+                            </button>
+                        </div>
+
                         <div className="relative w-full max-w-md aspect-square">
                             <Image
                                 src={getImagePath()}
                                 alt={`${character.race} ${character.class} character portrait`}
-                                className="object-cover rounded-lg"
+                                className="object-cover rounded-lg character-portrait"
                                 fill
                                 sizes="(max-width: 768px) 100vw, 33vw"
                                 priority
                             />
+                            {/* Floating Numbers */}
+                            {floatingNumbers.map(({ id, amount, isHeal }) => (
+                                <div
+                                    key={id}
+                                    className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-bold text-2xl ${isHeal ? 'text-green-500' : 'text-red-500'
+                                        } floating-number`}
+                                >
+                                    {isHeal ? '+' : '-'}{amount}
+                                </div>
+                            ))}
                         </div>
                     </div>
 
@@ -472,6 +571,29 @@ export default function CharacterDetail() {
                     </div>
                 </div>
             )}
+
+            {/* Add this to your existing styles */}
+            <style jsx global>{`
+                @keyframes shake {
+                    0%, 100% { transform: translateX(0); }
+                    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+                    20%, 40%, 60%, 80% { transform: translateX(5px); }
+                }
+                .shake {
+                    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+                }
+                @keyframes floatUp {
+                    0% { transform: translateY(0); opacity: 1; }
+                    100% { transform: translateY(-50px); opacity: 0; }
+                }
+                .floating-number {
+                    position: absolute;
+                    font-weight: bold;
+                    font-size: 1.5rem;
+                    pointer-events: none;
+                    animation: floatUp 1s ease-out forwards;
+                }
+            `}</style>
         </div>
     );
 } 
