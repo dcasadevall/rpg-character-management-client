@@ -221,7 +221,8 @@ export default function CharacterDetail() {
 
     return (
         <div className="max-w-6xl mx-auto py-8 dark:bg-gray-900 dark:text-white">
-            <div className="flex justify-end items-center mb-8">
+            <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl font-bold dark:text-white">{character.name}</h1>
                 <div className="space-x-4">
                     <Link
                         href="/characters"
