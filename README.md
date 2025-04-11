@@ -1,4 +1,4 @@
-## RPG Character Managemenet Client
+## DnD Character Managemenet Client
 
 Web client for the character service in https://github.com/dcasadevall/rpg-server.
 

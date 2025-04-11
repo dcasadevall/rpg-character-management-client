@@ -3,8 +3,8 @@ import Link from 'next/link';
 export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
-      <h1 className="text-5xl font-bold mb-6">Welcome to RPG Character Manager</h1>
-      <p className="text-xl mb-8">Create, manage, and visualize your RPG characters with ease</p>
+      <h1 className="text-5xl font-bold mb-6">Welcome to DnD Character Manager</h1>
+      <p className="text-xl mb-8">Create, manage, and visualize your DnD characters with ease</p>
 
       <div className="flex gap-6">
         <Link

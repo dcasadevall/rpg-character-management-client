@@ -53,7 +53,7 @@ export default function RootLayout({
       >
         <header className="bg-slate-800 text-white shadow-md dark:bg-gray-950 dark:border-b dark:border-gray-800">
           <nav className="container mx-auto flex items-center justify-between p-4">
-            <Link href="/" className="text-2xl font-bold">RPG Character Manager</Link>
+            <Link href="/" className="text-2xl font-bold">DnD Character Manager</Link>
             <div className="space-x-6">
               <Link href="/create" className="hover:underline">Create Character</Link>
               <Link href="/characters" className="hover:underline">View Characters</Link>
