@@ -15,6 +15,7 @@ async function fetchWithFallback(url: string, options?: RequestInit): Promise<Re
         }
         return response;
     } catch (error) {
+        console.log(error);
         // If the first request fails, try the fallback URL
         const fallbackUrl = url.replace(API_BASE_URL, FALLBACK_API_BASE_URL);
         return await fetch(fallbackUrl, options);
