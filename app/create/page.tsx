@@ -72,6 +72,8 @@ export default function CreateCharacter() {
             // Complete character data with correct stats format
             const completeCharacter: Character = {
                 ...character,
+                background: 'Unknown',
+                alignment: 'True Neutral',
                 hitPoints: 10,
                 maxHitPoints: 10,
                 abilityScores: {
@@ -83,12 +85,36 @@ export default function CreateCharacter() {
                     charisma: rollAttribute()
                 },
                 equipment: {
-                    mainHand: 0,
-                    offHand: 0,
-                    shield: 0,
-                    armor: 0
+                    mainHandId: 0,
+                    offHandId: 0,
+                    shieldId: 0,
+                    armorId: 0
                 },
                 wealth: {
+                    gold: 0,
+                    silver: 0,
+                    copper: 0
+                },
+                armorClass: 10,
+                proficiencyBonus: 2,
+                weaponDamageModifier: 0,
+                stats: {
+                    strength: 10,
+                    dexterity: 10,
+                    constitution: 10,
+                    intelligence: 10,
+                    wisdom: 10,
+                    charisma: 10
+                },
+                abilityModifiers: {
+                    strength: 0,
+                    dexterity: 0,
+                    constitution: 0,
+                    intelligence: 0,
+                    wisdom: 0,
+                    charisma: 0
+                },
+                wallet: {
                     gold: 0,
                     silver: 0,
                     copper: 0
