@@ -2,13 +2,31 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // const API_BASE_URL = 'http://localhost:5266/api/v1';
 const API_BASE_URL = 'https://dcasadevall.com/api/v1';
+const FALLBACK_API_BASE_URL = 'https://api.dcasadevall.com/api/v1';
+
+// Helper function to make API calls with fallback
+async function fetchWithFallback(url: string, options?: RequestInit): Promise<Response> {
+    try {
+        const response = await fetch(url, options);
+        if (response.status === 500) {
+            // If we get a 500 error, try the fallback URL
+            const fallbackUrl = url.replace(API_BASE_URL, FALLBACK_API_BASE_URL);
+            return await fetch(fallbackUrl, options);
+        }
+        return response;
+    } catch (error) {
+        // If the first request fails, try the fallback URL
+        const fallbackUrl = url.replace(API_BASE_URL, FALLBACK_API_BASE_URL);
+        return await fetch(fallbackUrl, options);
+    }
+}
 
 export async function GET(request: NextRequest, { params }: { params: { path: string[] } }) {
     const path = params.path.join('/');
     const url = `${API_BASE_URL}/${path}${request.nextUrl.search}`;
 
     try {
-        const response = await fetch(url);
+        const response = await fetchWithFallback(url);
 
         if (response.ok) {
             try {
@@ -55,7 +73,7 @@ export async function POST(request: NextRequest, { params }: { params: { path: s
         if (isCurrencyInit) {
             console.log('Special handling for currency init endpoint:', url);
             // For currency init, we don't need to send a body
-            response = await fetch(url, {
+            response = await fetchWithFallback(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -72,7 +90,7 @@ export async function POST(request: NextRequest, { params }: { params: { path: s
             console.log('Sending POST request to:', url);
             console.log('Request body:', requestBody);
 
-            response = await fetch(url, {
+            response = await fetchWithFallback(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -102,12 +120,7 @@ export async function POST(request: NextRequest, { params }: { params: { path: s
                 }
             } catch (parseError) {
                 console.error(`Error parsing JSON response: ${parseError}`);
-                // For currency init, return a default gold value
-                if (isCurrencyInit) {
-                    return NextResponse.json({ gold: 10, success: true, status: response.status });
-                } else {
-                    return NextResponse.json({ success: true, status: response.status });
-                }
+                return NextResponse.json({ success: true, status: response.status });
             }
         } else {
             const errorText = await response.text();
@@ -119,7 +132,7 @@ export async function POST(request: NextRequest, { params }: { params: { path: s
         }
     } catch (error) {
         console.error(`Error proxying POST request to ${url}:`, error);
-        return NextResponse.json({ error: 'Failed to send data to API' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to fetch data from API' }, { status: 500 });
     }
 }
 
@@ -128,38 +141,40 @@ export async function PUT(request: NextRequest, { params }: { params: { path: st
     const url = `${API_BASE_URL}/${path}`;
 
     try {
-        const body = await request.json();
-        const response = await fetch(url, {
+        let requestBody = {};
+        try {
+            requestBody = await request.json();
+        } catch (error) {
+            console.log('No JSON body provided or invalid JSON: ', error);
+        }
+
+        console.log('Sending PUT request to:', url);
+        console.log('Request body:', requestBody);
+
+        const response = await fetchWithFallback(url, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(body),
+            body: JSON.stringify(requestBody),
         });
 
-        // Check if the response is successful regardless of content
         if (response.ok) {
             try {
-                // Try to parse JSON if available
                 const contentType = response.headers.get('content-type');
                 if (contentType && contentType.includes('application/json')) {
                     const text = await response.text();
-                    // Only try to parse if there's actual content
                     if (text && text.trim()) {
                         const data = JSON.parse(text);
                         return NextResponse.json(data);
                     }
                 }
-
-                // If no content or not JSON, return a success message
                 return NextResponse.json({ success: true, status: response.status });
             } catch (parseError) {
                 console.error(`Error parsing JSON response: ${parseError}`);
-                // Still return success if the request was successful
                 return NextResponse.json({ success: true, status: response.status });
             }
         } else {
-            // Handle error response
             const errorText = await response.text();
             console.error(`API returned error status ${response.status}: ${errorText}`);
             return NextResponse.json(
@@ -169,7 +184,7 @@ export async function PUT(request: NextRequest, { params }: { params: { path: st
         }
     } catch (error) {
         console.error(`Error proxying PUT request to ${url}:`, error);
-        return NextResponse.json({ error: 'Failed to update data in API' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to fetch data from API' }, { status: 500 });
     }
 }
 
@@ -178,32 +193,12 @@ export async function DELETE(request: NextRequest, { params }: { params: { path:
     const url = `${API_BASE_URL}/${path}`;
 
     try {
-        const response = await fetch(url, {
+        const response = await fetchWithFallback(url, {
             method: 'DELETE',
         });
 
         if (response.ok) {
-            // For 204 No Content or similar responses, just return success
-            if (response.status === 204 || !response.headers.get('content-type')) {
-                return NextResponse.json({ success: true, status: response.status });
-            }
-
-            // Try to parse JSON if it exists
-            try {
-                if (response.headers.get('content-type')?.includes('application/json')) {
-                    const text = await response.text();
-                    if (text && text.trim()) {
-                        const data = JSON.parse(text);
-                        return NextResponse.json(data);
-                    }
-                }
-
-                // Default success response
-                return NextResponse.json({ success: true, status: response.status });
-            } catch (parseError) {
-                console.error(`Error parsing JSON response: ${parseError}`);
-                return NextResponse.json({ success: true, status: response.status });
-            }
+            return NextResponse.json({ success: true, status: response.status });
         } else {
             const errorText = await response.text();
             console.error(`API returned error status ${response.status}: ${errorText}`);
@@ -214,7 +209,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { path:
         }
     } catch (error) {
         console.error(`Error proxying DELETE request to ${url}:`, error);
-        return NextResponse.json({ error: 'Failed to delete data from API' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to fetch data from API' }, { status: 500 });
     }
 }
 
@@ -232,18 +227,14 @@ export async function PATCH(request: NextRequest, { params }: { params: { path: 
 
         console.log('Sending PATCH request to:', url);
         console.log('Request body:', requestBody);
-        console.log('Request headers:', request.headers);
 
-        const response = await fetch(url, {
+        const response = await fetchWithFallback(url, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(requestBody),
         });
-
-        console.log('Response status:', response.status);
-        console.log('Response headers:', response.headers);
 
         if (response.ok) {
             try {
@@ -255,7 +246,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { path: 
                         return NextResponse.json(data);
                     }
                 }
-
                 return NextResponse.json({ success: true, status: response.status });
             } catch (parseError) {
                 console.error(`Error parsing JSON response: ${parseError}`);
@@ -271,6 +261,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { path: 
         }
     } catch (error) {
         console.error(`Error proxying PATCH request to ${url}:`, error);
-        return NextResponse.json({ error: 'Failed to update data in API' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to fetch data from API' }, { status: 500 });
     }
 } 
