@@ -366,30 +366,14 @@ export default function CharacterDetail() {
                         <div className="mb-6">
                             <h3 className="text-lg font-medium mb-3 border-b pb-2 dark:border-gray-700 dark:text-gray-200">Attributes</h3>
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                                <div>
-                                    <span className="font-semibold dark:text-gray-300">Strength:</span>{' '}
-                                    <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-700 dark:text-gray-200">{getStatValue('Strength')}</span>
-                                </div>
-                                <div>
-                                    <span className="font-semibold dark:text-gray-300">Dexterity:</span>{' '}
-                                    <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-700 dark:text-gray-200">{getStatValue('Dexterity')}</span>
-                                </div>
-                                <div>
-                                    <span className="font-semibold dark:text-gray-300">Constitution:</span>{' '}
-                                    <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-700 dark:text-gray-200">{getStatValue('Constitution')}</span>
-                                </div>
-                                <div>
-                                    <span className="font-semibold dark:text-gray-300">Intelligence:</span>{' '}
-                                    <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-700 dark:text-gray-200">{getStatValue('Intelligence')}</span>
-                                </div>
-                                <div>
-                                    <span className="font-semibold dark:text-gray-300">Wisdom:</span>{' '}
-                                    <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-700 dark:text-gray-200">{getStatValue('Wisdom')}</span>
-                                </div>
-                                <div>
-                                    <span className="font-semibold dark:text-gray-300">Charisma:</span>{' '}
-                                    <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-700 dark:text-gray-200">{getStatValue('Charisma')}</span>
-                                </div>
+                                {['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma'].map((attr) => (
+                                    <div key={attr} className="flex justify-between items-center">
+                                        <span className="font-semibold dark:text-gray-300 mr-2">{attr}:</span>{' '}
+                                        <span className="bg-gray-100 px-2 py-1 rounded dark:bg-gray-700 dark:text-gray-200">
+                                            {getStatValue(attr)}
+                                        </span>
+                                    </div>
+                                ))}
                             </div>
                         </div>
 
