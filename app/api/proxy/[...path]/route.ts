@@ -65,7 +65,7 @@ export async function POST(request: NextRequest, { params }: { params: { path: s
             try {
                 requestBody = await request.json();
             } catch (error) {
-                console.log('No JSON body provided or invalid JSON');
+                console.log('No JSON body provided or invalid JSON: ', error);
             }
 
             console.log('Sending POST request to:', url);
@@ -226,7 +226,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { path: 
         try {
             requestBody = await request.json();
         } catch (error) {
-            console.log('No JSON body provided or invalid JSON');
+            console.log('No JSON body provided or invalid JSON: ', error);
         }
 
         console.log('Sending PATCH request to:', url);
