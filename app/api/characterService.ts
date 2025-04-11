@@ -257,7 +257,7 @@ export function getRandomCharacter(): Omit<Character, 'id'> {
         },
         armorClass: 10,
         proficiencyBonus: 2,
-        weaponDamageModifier: "0",
+        weaponDamageModifier: 0,
         stats: {
             strength: 10,
             dexterity: 10,
