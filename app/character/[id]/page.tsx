@@ -74,11 +74,11 @@ export default function CharacterDetail() {
     const getImagePath = () => {
         if (!character) return '';
 
-        const race = character.race.toLowerCase();
-        const characterClass = character.class.toLowerCase();
+        const race = character.race.charAt(0).toUpperCase() + character.race.slice(1).toLowerCase();
+        const characterClass = character.class.charAt(0).toUpperCase() + character.class.slice(1).toLowerCase();
 
         return character.subrace
-            ? `/character-creation/${race}-${character.subrace.toLowerCase()}-${characterClass}.png`
+            ? `/character-creation/${race}-${character.subrace.charAt(0).toUpperCase() + character.subrace.slice(1).toLowerCase()}-${characterClass}.png`
             : `/character-creation/${race}-${characterClass}.png`;
     };
 
