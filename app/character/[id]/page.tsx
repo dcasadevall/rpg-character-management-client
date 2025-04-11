@@ -335,6 +335,10 @@ export default function CharacterDetail() {
                                 sizes="(max-width: 768px) 100vw, 33vw"
                                 priority
                             />
+                            {/* Death Effect Overlay */}
+                            {character.hitPoints === 0 && (
+                                <div className="absolute inset-0 bg-red-500/50 rounded-lg death-overlay"></div>
+                            )}
                             {/* Floating Numbers */}
                             {floatingNumbers.map(({ id, amount, isHeal }) => (
                                 <div
@@ -580,6 +584,20 @@ export default function CharacterDetail() {
                     font-size: 1.5rem;
                     pointer-events: none;
                     animation: floatUp 1s ease-out forwards;
+                }
+                @keyframes deathFlood {
+                    0% { 
+                        clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
+                        opacity: 0;
+                    }
+                    100% { 
+                        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+                        opacity: 1;
+                    }
+                }
+                .death-overlay {
+                    animation: deathFlood 1s ease-out forwards;
+                    pointer-events: none;
                 }
             `}</style>
         </div>

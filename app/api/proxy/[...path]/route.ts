@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // const API_BASE_URL = 'http://localhost:5266/api/v1';
-const API_BASE_URL = 'https://api.dcasadevall.com/api/v1';
+const API_BASE_URL = 'https://dcasadevall.com/api/v1';
 
 export async function GET(request: NextRequest, { params }: { params: { path: string[] } }) {
     const path = params.path.join('/');
