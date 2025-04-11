@@ -44,7 +44,11 @@ export default function ViewCharacters() {
 
     // Get image path for character portrait
     const getImagePath = (character: Character) => {
-        const race = character.race.charAt(0).toUpperCase() + character.race.slice(1).toLowerCase();
+        // Special handling for hyphenated races
+        const race = character.race.includes('-')
+            ? character.race.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join('-')
+            : character.race.charAt(0).toUpperCase() + character.race.slice(1).toLowerCase();
+
         const characterClass = character.class.charAt(0).toUpperCase() + character.class.slice(1).toLowerCase();
 
         return character.subrace
