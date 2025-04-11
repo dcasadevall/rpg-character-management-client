@@ -13,7 +13,6 @@ const nextConfig = {
                 port: '3000',
             },
         ],
-        unoptimized: true, // Disable image optimization for local images
     },
     // Allow images from the localhost domain for development
     reactStrictMode: true,
